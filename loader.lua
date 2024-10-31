@@ -1,11 +1,10 @@
 local ids = {"10427371065", "8726082314", "10569857544", "1377928804", "124342709513109", "11818627057", "3232865325", "14424817453"}
-local sound_ids = {"8212205984"}
+local sound_id = "8212205984"
 local random_ids = math.random(1, #ids)
-local random_soundid = math.random(1, #sound_id)
 
 local sound = Instance.new("Sound")
 sound.Parent = game:GetService("SoundService")
-sound.SoundId = "rbxassetid://"..sound_ids[random_soundid]
+sound.SoundId = "rbxassetid://"..sound_id
 sound.Volume = 3
 
 repeat wait() until game:IsLoaded()
