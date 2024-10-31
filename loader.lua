@@ -2,6 +2,8 @@ local ids = {"10427371065", "8726082314", "10569857544", "1377928804", "12434270
 local sound_id = "8212205984"
 local random_ids = math.random(1, #ids)
 
+local loadscript = true
+
 local sound = Instance.new("Sound")
 sound.Parent = game:GetService("SoundService")
 sound.SoundId = "rbxassetid://"..sound_id
@@ -17,14 +19,17 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 sound:Play()
 
 game.Players.LocalPlayer.OnTeleport:Connect(function()
-    queue_on_teleport([[
-      repeat wait() until game:IsLoaded()
-      local load = true
-      if load == true then
-          load = false
-          loadstring(game:HttpGet('https://raw.githubusercontent.com/populyar1/just/refs/heads/main/Gui_v2.lua'))()
-      else
-          print("Please reload Gui!")
+      if loadscript == true then
+            loadscript = false
+          queue_on_teleport([[
+            repeat wait() until game:IsLoaded()
+            local load = true
+            if load == true then
+                load = false
+                loadstring(game:HttpGet('https://raw.githubusercontent.com/populyar1/just/refs/heads/main/Gui_v2.lua'))()
+            else
+                print("Please reload Gui!")
+            end
+        ]])
       end
-  ]])
 end)
