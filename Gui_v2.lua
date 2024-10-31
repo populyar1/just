@@ -18,8 +18,9 @@ local functions = {
       anti_flingF = nil;
       infstaminaF = nil;
       nofalldamageF = false;
-      highlightF = nil;
+      highlightF = false;
       aimbotF = false;
+      fast_pickupF = false;
 }
 
 local remotes = {
@@ -29,7 +30,70 @@ local remotes = {
       gravityslider_dragging = false;
 }
 
-function highlightL(plr)
+function fastpickupL()
+      local proximityPrompts = {}
+
+      workspace.DescendantAdded:Connect(function(item)
+            if item:IsA("ProximityPrompt") then
+                  proximityPrompts[item] = {
+                        originalDuration = item.HoldDuration
+                  }
+            end
+      end)
+
+      run.RenderStepped:Connect(function()
+            for prompt, info in pairs(proximityPrompts) do
+                  if functions.fast_pickupF then
+                        prompt.HoldDuration = 0
+                  end
+            end
+      end)
+end
+
+function highlightL()
+      local function add(character)
+            if not character:FindFirstChild("Highlight") then
+                  local highlight = Instance.new("Highlight")
+                  highlight.Adornee = character
+                  highlight.FillTransparency = 1
+                  highlight.Parent = character
+            end
+      end
+
+      local function remove(character)
+            local highlight = character:FindFirstChild("Highlight")
+            if highlight then
+                  highlight:Destroy()
+            end
+      end
+
+      local function isview(character)
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                  local Noscreen, Inscreen = camera:WorldToScreenPoint(humanoidRootPart.Position)
+                  return Inscreen
+            end
+            return false
+      end
+
+      local function update()
+            local Players = plrs:GetPlayers()
+            for _, plr in ipairs(Players) do
+                  if plr ~= me then
+                        local char = plr.Character
+                        if char then
+                              if functions.highlightF then
+                                    if isview(char) then
+                                          add(char)
+                                    else
+                                          remove(char)
+                                    end
+                              end
+                        end
+                  end
+            end
+      end
+      run.RenderStepped:Connect(update)
 end
 
 function aimbotL()
@@ -110,6 +174,8 @@ function aimbotL()
                                     local target = gettarget()
                                     if target ~= nil then
                                           aimtarget = target
+                                    else
+                                          return target
                                     end
                               end
                         end)
@@ -151,17 +217,17 @@ function aimbotL()
 end
 
 function infstaminaL()
-      local StaminaTake = getrenv()._G.S_Take
-      local StaminaFunc = getupvalue(StaminaTake, 2)
+      StaminaTake = getrenv()._G.S_Take
+      StaminaFunc = getupvalue(StaminaTake, 2)
 
       for i, v in pairs(getupvalues(StaminaFunc)) do
             if type(v) == "function" and getinfo(v).name == "Upt_S" then
                   local OldFunction;
                   OldFunction = hookfunction(v, function(...)
                         if functions.infstaminaF == true then
-                              local CharacterVar = game:GetService("Players").LocalPlayer.Character
+                              CharacterVar = game:GetService("Players").LocalPlayer.Character
                               if not CharacterVar or not CharacterVar.Parent then
-                                    local CharacterVar = game:GetService("Players").LocalPlayer.CharacterAdded:wait()
+                                    CharacterVar = game:GetService("Players").LocalPlayer.CharacterAdded:wait()
                                     getupvalue(StaminaFunc, 6).S = 100
                               elseif CharacterVar then
                                     getupvalue(StaminaFunc, 6).S = 100
@@ -174,7 +240,7 @@ function infstaminaL()
 end
 
 function fullbrightL(value)
-      light.ExposureCompensation = value
+     light.ExposureCompensation = value
 end
 
 function open_doorsL()
@@ -191,15 +257,15 @@ function open_doorsL()
 end
 
 function nobarriersL(value)
-      local function disableTouchAndQuery(part)
+      function disableTouchAndQuery(part)
             if part:IsA("BasePart") then
                   part.CanTouch = value
                   part.CanQuery = value
             end
       end
 
-      local function findAndDisableParts()
-            local partNames = {"BarbedWire", "RG_Part", "Spike"}
+      function findAndDisableParts()
+            partNames = {"BarbedWire", "RG_Part", "Spike"}
 
             for _, partName in ipairs(partNames) do
                   for _, part in pairs(game.Workspace:GetDescendants()) do
@@ -209,20 +275,19 @@ function nobarriersL(value)
                   end
             end
       end
-
       findAndDisableParts()
 end
 
 function nogrinderL(value)
-      local function disableTouchAndQuery(part)
+      function disableTouchAndQuery(part)
             if part:IsA("BasePart") then
                   part.CanTouch = value
                   part.CanQuery = value
             end
       end
 
-      local function findAndDisableParts()
-            local partNames = {"FirePart", "Grinder"}
+      function findAndDisableParts()
+            partNames = {"FirePart", "Grinder"}
 
             for _, partName in ipairs(partNames) do
                   for _, part in pairs(game.Workspace:GetDescendants()) do
@@ -236,7 +301,7 @@ function nogrinderL(value)
 end
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = game.CoreGui
+Gui.Parent = me.PlayerGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -756,13 +821,13 @@ uicnogrinderturn.CornerRadius = UDim.new(8, 8)
 
 local antiVoid = Instance.new("TextLabel")
 antiVoid.Parent = WorldMenu
-antiVoid.Name = "anti-void"
+antiVoid.Name = "Anti-void"
 antiVoid.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
 antiVoid.Position = UDim2.new(0.016, 0, 0.363, 0)
 antiVoid.Size = UDim2.new(0, 194, 0, 32)
 antiVoid.TextScaled = true
 antiVoid.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
-antiVoid.Text = "anti-void"
+antiVoid.Text = "Anti-void"
 antiVoid.Visible = true
 
 local uicantivoid = Instance.new("UICorner")
@@ -1443,6 +1508,58 @@ local uicaimbotturn = Instance.new("UICorner")
 uicaimbotturn.Parent = aimbotTurn
 uicaimbotturn.CornerRadius = UDim.new(8, 8)
 
+local Fastpickup = Instance.new("TextLabel")
+Fastpickup.Parent = WorldMenu
+Fastpickup.Name = "Fast-pickup"
+Fastpickup.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+Fastpickup.Position = UDim2.new(0.576, 0, 0.02, 0)
+Fastpickup.Size = UDim2.new(0, 194, 0, 32)
+Fastpickup.TextScaled = true
+Fastpickup.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+Fastpickup.Text = "Fast pickup"
+Fastpickup.Visible = true
+
+local uicfastpickup = Instance.new("UICorner")
+uicfastpickup.Parent = Fastpickup
+uicfastpickup.CornerRadius = UDim.new(0, 8)
+
+local fastpickupHow = Instance.new("ImageLabel")
+fastpickupHow.Parent = Fastpickup
+fastpickupHow.Name = "how"
+fastpickupHow.Position = UDim2.new(1.077, 0, 0, 0)
+fastpickupHow.Size = UDim2.new(0, 32, 0, 32)
+fastpickupHow.Image = "rbxassetid://75772970732380"
+fastpickupHow.Visible = true
+
+local uicfastpickuphow = Instance.new("UICorner")
+uicfastpickuphow.Parent = fastpickupHow
+uicfastpickuphow.CornerRadius = UDim.new(8, 8)
+
+local fastpickupControl = Instance.new("Frame")
+fastpickupControl.Parent = Fastpickup
+fastpickupControl.Name = "Control"
+fastpickupControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+fastpickupControl.Position = UDim2.new(1.309, 0, 0, 0)
+fastpickupControl.Size = UDim2.new(0, 58, 0, 32)
+fastpickupControl.Visible = true
+
+local uicfastpickupcontrol = Instance.new("UICorner")
+uicfastpickupcontrol.Parent = fastpickupControl
+uicfastpickupcontrol.CornerRadius = UDim.new(8, 8)
+
+local fastpickupTurn = Instance.new("TextButton")
+fastpickupTurn.Parent = fastpickupControl
+fastpickupTurn.Name = "turn"
+fastpickupTurn.BackgroundColor3 = Color3.new(1, 0, 0)
+fastpickupTurn.Position = UDim2.new(0, 0, 0, 0)
+fastpickupTurn.Size = UDim2.new(0, 35, 0, 32)
+fastpickupTurn.Text = ""
+fastpickupTurn.Visible = true
+
+local uicfastpickupturn = Instance.new("UICorner")
+uicfastpickupturn.Parent = fastpickupTurn
+uicfastpickupturn.CornerRadius = UDim.new(8, 8)
+
 WorldList.MouseButton1Click:Connect(function()
       for _, a in pairs(Menus:GetChildren()) do
             if a:IsA("Frame") and a ~= WorldMenu then
@@ -1482,8 +1599,8 @@ end)
 FullbrightTurn.MouseButton1Click:Connect(function()
       if functions.FullbrightF == false then
             functions.FullbrightF = true
-            local fullbrightinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local fullbrightanim1 = tween:Create(FullbrightTurn, fullbrightinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            fullbrightinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            fullbrightanim1 = tween:Create(FullbrightTurn, fullbrightinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
             fullbrightanim1:Play()
             fullbrightanim1.Completed:Connect(function()
                   FullbrightTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
@@ -1492,8 +1609,8 @@ FullbrightTurn.MouseButton1Click:Connect(function()
       elseif functions.FullbrightF == true then
             functions.FullbrightF = false
             fullbrightL(0)
-            local fullbrightinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local fullbrightanim2 = tween:Create(FullbrightTurn, fullbrightinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            fullbrightinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            fullbrightanim2 = tween:Create(FullbrightTurn, fullbrightinfo2, {Position = UDim2.new(0, 0, 0, 0)})
             fullbrightanim2:Play()
             fullbrightanim2.Completed:Connect(function()
                   FullbrightTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -1505,8 +1622,8 @@ TurnOpen_doors.MouseButton1Click:Connect(function()
       if functions.AutoOpenDoorsF == false then
             functions.AutoOpenDoorsF = true
             open_doorsL()
-            local openDoorsinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local openDoorsanim1 = tween:Create(TurnOpen_doors, openDoorsinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            openDoorsinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            openDoorsanim1 = tween:Create(TurnOpen_doors, openDoorsinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
             openDoorsanim1:Play()
             openDoorsanim1.Completed:Connect(function()
                   TurnOpen_doors.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
@@ -1514,8 +1631,8 @@ TurnOpen_doors.MouseButton1Click:Connect(function()
       elseif functions.AutoOpenDoorsF == true then
             functions.AutoOpenDoorsF = false
             remotes.open_doorsRun:Disconnect()
-            local openDoorsinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local openDoorsanim2 = tween:Create(TurnOpen_doors, openDoorsinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            openDoorsinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            openDoorsanim2 = tween:Create(TurnOpen_doors, openDoorsinfo2, {Position = UDim2.new(0, 0, 0, 0)})
             openDoorsanim2:Play()
             openDoorsanim2.Completed:Connect(function()
                   TurnOpen_doors.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -1526,8 +1643,8 @@ end)
 nobarriersTurn.MouseButton1Click:Connect(function()
       if functions.NoBarriersF == false then
             functions.NoBarriersF = true
-            local nobarriersinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local nobarriersanim1 = tween:Create(nobarriersTurn, nobarriersinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            nobarriersinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            nobarriersanim1 = tween:Create(nobarriersTurn, nobarriersinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
             nobarriersanim1:Play()
             nobarriersanim1.Completed:Connect(function()
                   nobarriersTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
@@ -1535,8 +1652,8 @@ nobarriersTurn.MouseButton1Click:Connect(function()
             nobarriersL(false)
       elseif functions.NoBarriersF == true then
             functions.NoBarriersF = false
-            local nobarriersinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local nobarriersanim2 = tween:Create(nobarriersTurn, nobarriersinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            nobarriersinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            nobarriersanim2 = tween:Create(nobarriersTurn, nobarriersinfo2, {Position = UDim2.new(0, 0, 0, 0)})
             nobarriersanim2:Play()
             nobarriersanim2.Completed:Connect(function()
                   nobarriersTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -1567,8 +1684,8 @@ nogrinderTurn.MouseButton1Click:Connect(function()
       end
 end)
 
-local min1 = 0.08 * fovControl.AbsoluteSize.X
-local max1 = fovControl.AbsoluteSize.X
+min1 = 0.08 * fovControl.AbsoluteSize.X
+max1 = fovControl.AbsoluteSize.X
 
 local minfov = 30
 local maxfov = 120
@@ -1585,12 +1702,12 @@ end)
 
 input.InputChanged:Connect(function(check2)
       if remotes.fovslider_dragging and check2.UserInputType == Enum.UserInputType.MouseMovement then
-            local mousepos = input:GetMouseLocation().X
-            local newsize = math.clamp(mousepos - fovControl.AbsolutePosition.X, min1, max1)
-            local btnSizeScale = newsize / fovControl.AbsoluteSize.X
+            mousepos = input:GetMouseLocation().X
+            newsize = math.clamp(mousepos - fovControl.AbsolutePosition.X, min1, max1)
+            btnSizeScale = newsize / fovControl.AbsoluteSize.X
             fovSlider.Size = UDim2.new(btnSizeScale, 0, fovSlider.Size.Y.Scale, fovSlider.Size.Y.Offset)
-            local fovProgress = (newsize - min1) / (max1 - min1)
-            local fov = math.clamp(minfov + (fovProgress * (maxfov - minfov)), minfov, maxfov)
+            fovProgress = (newsize - min1) / (max1 - min1)
+            fov = math.clamp(minfov + (fovProgress * (maxfov - minfov)), minfov, maxfov)
 
             if remotes.fov_connection then
                   remotes.fov_connection:Disconnect()
@@ -1620,12 +1737,12 @@ end)
 
 input.InputChanged:Connect(function(check4)
       if remotes.gravityslider_dragging and check4.UserInputType == Enum.UserInputType.MouseMovement then
-            local mousepos = input:GetMouseLocation().X
-            local newsize = math.clamp(mousepos - gravityControl.AbsolutePosition.X, min2, max2)
-            local btnSizeScale = newsize / gravityControl.AbsoluteSize.X
+            mousepos = input:GetMouseLocation().X
+            newsize = math.clamp(mousepos - gravityControl.AbsolutePosition.X, min2, max2)
+            btnSizeScale = newsize / gravityControl.AbsoluteSize.X
             gravitySlider.Size = UDim2.new(btnSizeScale, 0, gravitySlider.Size.Y.Scale, gravitySlider.Size.Y.Offset)
-            local gravityprogress = (newsize - min2) / (max2 - min2)
-            local Gravity = math.clamp(minGravity + (gravityprogress * (maxGravity - minGravity)), maxGravity, minGravity)
+            gravityprogress = (newsize - min2) / (max2 - min2)
+            Gravity = math.clamp(minGravity + (gravityprogress * (maxGravity - minGravity)), maxGravity, minGravity)
             game.Workspace.Gravity = Gravity
       end
 end)
@@ -1633,36 +1750,36 @@ end)
 nofalldamageTurn.MouseButton1Click:Connect(function()
       if functions.nofalldamageF == false then
             functions.nofalldamageF = true
-            local nofalldamegeinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local nofalldamageanim1 = tween:Create(nofalldamageTurn, nofalldamegeinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            nofalldamegeinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            nofalldamageanim1 = tween:Create(nofalldamageTurn, nofalldamegeinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
             nofalldamageanim1:Play()
             nofalldamageanim1.Completed:Connect(function()
                   nofalldamageTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
             end)
 
-            local char1 = me.Character or me.CharacterAdded:Wait()
-            local force = Instance.new("ForceField")
+            char1 = me.Character or me.CharacterAdded:Wait()
+            force = Instance.new("ForceField")
             force.Parent = char1
             force.Visible = false
 
             me.CharacterAdded:Connect(function(newChar)
                   if functions.nofalldamageF then
-                        local newForce = Instance.new("ForceField")
+                        newForce = Instance.new("ForceField")
                         newForce.Parent = newChar
                         newForce.Visible = false
                   end
             end)
       elseif functions.nofalldamageF == true then
             functions.nofalldamageF = false
-            local nofalldamageinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local nofalldamageanim2 = tween:Create(nofalldamageTurn, nofalldamageinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            nofalldamageinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            nofalldamageanim2 = tween:Create(nofalldamageTurn, nofalldamageinfo2, {Position = UDim2.new(0, 0, 0, 0)})
             nofalldamageanim2:Play()
             nofalldamageanim2.Completed:Connect(function()
                   nofalldamageTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
 
-            local char2 = me.Character or me.CharacterAdded:Wait()
-            local forceField = char2:FindFirstChildOfClass("ForceField")
+            char2 = me.Character or me.CharacterAdded:Wait()
+            forceField = char2:FindFirstChildOfClass("ForceField")
             if forceField then
                   forceField:Destroy()
             end
@@ -1671,29 +1788,30 @@ end)
 highlightTurn.MouseButton1Click:Connect(function()
       if functions.highlightF == false then
             functions.highlightF = true
-            local highlightinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local highlightanim1 = tween:Create(highlightTurn, highlightinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            highlightinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            highlightanim1 = tween:Create(highlightTurn, highlightinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
             highlightanim1:Play()
             highlightanim1.Completed:Connect(function()
                   highlightTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
             end)
-            for _, a in pairs(plrs:GetPlayers()) do
-                  if a ~= me then
-                        highlightL(a)
-                  end
-            end
+            highlightL()
       elseif functions.highlightF == true then
             functions.highlightF = false
-            local highlightinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local highlightanim2 = tween:Create(highlightTurn, highlightinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            highlightinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            highlightanim2 = tween:Create(highlightTurn, highlightinfo2, {Position = UDim2.new(0, 0, 0, 0)})
             highlightanim2:Play()
             highlightanim2.Completed:Connect(function()
                   highlightTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
-            local getservice = game:FindService("CoreGui")
-            for _, a in pairs(getservice:GetChildren()) do
-                  if a:IsA("Folder") and a.Name == "Highlight_Storage" then
-                        a:Destroy()
+            for _, a in pairs(plrs:GetPlayers()) do
+                  if a ~= me then
+                        char = a.Character
+                        if char then
+                              chams = char:FindFirstChildOfClass("Highlight")
+                              if chams then
+                                    chams:Destroy()
+                              end
+                        end
                   end
             end
       end
@@ -1702,8 +1820,8 @@ end)
 infstaminaTurn.MouseButton1Click:Connect(function()
       if functions.infstaminaF == false then
             functions.infstaminaF = true
-            local infstaminainfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local infstaminaanim1 = tween:Create(infstaminaTurn, infstaminainfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            infstaminainfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            infstaminaanim1 = tween:Create(infstaminaTurn, infstaminainfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
             infstaminaanim1:Play()
             infstaminaanim1.Completed:Connect(function()
                   infstaminaTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
@@ -1711,8 +1829,8 @@ infstaminaTurn.MouseButton1Click:Connect(function()
             infstaminaL()
       elseif functions.infstaminaF == true then
             functions.infstaminaF = false
-            local infstaminainfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local infstaminaanim2 = tween:Create(infstaminaTurn, infstaminainfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            infstaminainfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            infstaminaanim2 = tween:Create(infstaminaTurn, infstaminainfo2, {Position = UDim2.new(0, 0, 0, 0)})
             infstaminaanim2:Play()
             infstaminaanim2.Completed:Connect(function()
                   infstaminaTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -1723,8 +1841,8 @@ end)
 aimbotTurn.MouseButton1Click:Connect(function()
       if functions.aimbotF == false then
             functions.aimbotF = true
-            local aimbotinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local aimbotanim1 = tween:Create(aimbotTurn, aimbotinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            aimbotinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            aimbotanim1 = tween:Create(aimbotTurn, aimbotinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
             aimbotanim1:Play()
             aimbotanim1.Completed:Connect(function()
                   aimbotTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
@@ -1732,8 +1850,8 @@ aimbotTurn.MouseButton1Click:Connect(function()
             aimbotL()
       elseif functions.aimbotF == true then
             functions.aimbotF = false
-            local aimbotinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local aimbotanim2 = tween:Create(aimbotTurn, aimbotinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            aimbotinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            aimbotanim2 = tween:Create(aimbotTurn, aimbotinfo2, {Position = UDim2.new(0, 0, 0, 0)})
             aimbotanim2:Play()
             aimbotanim2.Completed:Connect(function()
                   aimbotTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -1741,32 +1859,35 @@ aimbotTurn.MouseButton1Click:Connect(function()
       end
 end)
 
-local newmouse = Instance.new("ImageLabel")
-newmouse.Parent = Gui
-newmouse.Name = "Mouse"
-newmouse.BackgroundTransparency = 1
-newmouse.Position = UDim2.new(0, 0, 0, 0)
-newmouse.Size = UDim2.new(0, 35, 0, 35)
-newmouse.Image = "rbxassetid://131049758892610"
-newmouse.Visible = true
-
-input.MouseIconEnabled = false
-
-run.RenderStepped:Connect(function()
-      if newmouse.Visible == true then
-            local pos = input:GetMouseLocation()
-            newmouse.Position = UDim2.new(-0.005, pos.X, -0.085, pos.Y)
+fastpickupTurn.MouseButton1Click:Connect(function()
+      if functions.fast_pickupF == false then
+            functions.fast_pickupF = true
+            fastpickupinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            fastpickupanim1 = tween:Create(fastpickupTurn, fastpickupinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            fastpickupanim1:Play()
+            fastpickupanim1.Completed:Connect(function()
+                  fastpickupTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+            end)
+            fastpickupL()
+      elseif functions.fast_pickupF == true then
+            functions.fast_pickupF = false
+            fastpickupinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            fastpickupanim2 = tween:Create(fastpickupTurn, fastpickupinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            fastpickupanim2:Play()
+            fastpickupanim2.Completed:Connect(function()
+                  fastpickupTurn.BackgroundColor3 = Color3.new(1, 0, 0)
+            end)
       end
 end)
 
-local dragging = false
-local dragInput
-local dragStart
-local startPos
+dragging = false
+dragInput = nil
+dragStart = nil
+startPos = nil
 
-local function update(input)
-      local delta = input.Position - dragStart
-      local newPosition = UDim2.new(
+function update(input)
+      delta = input.Position - dragStart
+      newPosition = UDim2.new(
             startPos.X.Scale,
             startPos.X.Offset + delta.X,
             startPos.Y.Scale,
@@ -1807,17 +1928,13 @@ input.InputBegan:Connect(function(key)
       if key.KeyCode == Enum.KeyCode.Insert then
             if dragg.Visible == true then
                   dragg.Visible = false
-                  newmouse.Visible = false
-                  input.MouseIconEnabled = true
             else
                   dragg.Visible = true
-                  newmouse.Visible = true
-                  input.MouseIconEnabled = false
             end
       end
 end)
 
-local cfg1 = {
+cfg1 = {
       Rotation = 360
 }
 
@@ -1839,14 +1956,14 @@ uigb.Color = ColorSequence.new({
       ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
 })
 
-local bittween = TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 3 , true)
-local bittweenanim = tween:Create(uiguist, bittween, cfg1)
+bittween = TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 3 , true)
+bittweenanim = tween:Create(uiguist, bittween, cfg1)
 bittweenanim:Play()
 
 bittweenanim.Completed:Connect(function()
       beta.TextColor3 = Color3.new(1, 1, 1)
-      local uitextinfo = TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 3, true)
-      local uitextanim = tween:Create(uigb, uitextinfo, cfg1)
+      uitextinfo = TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 3, true)
+      uitextanim = tween:Create(uigb, uitextinfo, cfg1)
       uitextanim:Play()
       uiguist.Enabled = false
       uitextanim.Completed:Connect(function()
