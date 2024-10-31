@@ -7,6 +7,8 @@ local me = game:GetService("Players").LocalPlayer
 local reallink = false
 local Verified = false
 
+local loadscript = true
+
 local link1 = "youtube.com/watch?v=dQw4w9WgXcQ"
 local link2 = "discord.gg/Xt2V7rVG4w"
 
@@ -34,9 +36,12 @@ end)
 
 me.OnTeleport:Connect(function()
       if Verified == true then
-            queue_on_teleport([[
-                repeat wait() until game:IsLoaded()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/loader.lua"))()
-            ]])
+            if loadscript == true then
+                  loadscript = false
+                  queue_on_teleport([[
+                      repeat wait() until game:IsLoaded()
+                      loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/loader.lua"))()
+                  ]])
+            end
       end
 end)
