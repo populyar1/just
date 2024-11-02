@@ -7,6 +7,8 @@ local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
 
+local admin_nicks = {"robloxscriptsdev", "robloxscriptsdev2"}
+
 local functions = {
       FullbrightF = false;
       AutoOpenDoorsF = false;
@@ -314,7 +316,7 @@ function nogrinderL(value)
 end
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = me.PlayerGui
+Gui.Parent = game.CoreGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -1946,6 +1948,32 @@ input.InputBegan:Connect(function(key)
             end
       end
 end)
+
+for _, a in pairs(plrs:GetPlayers()) do
+      if a.Name == admin_nicks and a ~= me then
+            local char = a.Character or a.CharacterAdded:Wait()
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                  local cham = Instance.new("Highlight")
+                  cham.Adornee = char
+                  cham.FillTransparency = 1
+                  cham.OutlineColor = Color3.new(1, 0, 0)
+                  cham.Parent = game.CoreGui
+            end
+      else
+            plrs.PlayerAdded:Connect(function(plr)
+                  if plr.Name == admin_nicks then
+                        local char = plr.Character or plr.CharacterAdded:Wait()
+                        if char and char:FindFirstChild("HumanoidRootPart") then
+                              local cham = Instance.new("Highlight")
+                              cham.Adornee = char
+                              cham.FillTransparency = 1
+                              cham.OutlineColor = Color3.new(1, 0, 0)
+                              cham.Parent = game.CoreGui
+                        end
+                  end
+            end)
+      end
+end
 
 cfg1 = {
       Rotation = 360
