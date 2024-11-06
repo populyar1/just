@@ -7,8 +7,6 @@ local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
 
-local admin_nicks = {"robloxscriptsdev", "robloxscriptsdev2"}
-
 local functions = {
       FullbrightF = false;
       AutoOpenDoorsF = false;
@@ -18,11 +16,12 @@ local functions = {
       flyF = nil;
       glassbodyF = nil;
       anti_flingF = nil;
-      infstaminaF = nil;
+      infstaminaF = false;
       nofalldamageF = false;
       highlightF = false;
       aimbotF = false;
       fast_pickupF = false;
+      lockpickF = false;
 }
 
 local remotes = {
@@ -31,6 +30,57 @@ local remotes = {
       fov_connection;
       gravityslider_dragging = false;
 }
+
+local ChatFrame = me.PlayerGui.Chat.Frame
+ChatFrame.ChatChannelParentFrame.Visible = true
+ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
+
+function lockpickL()
+      local folder = game.Workspace:WaitForChild("Map").BredMakurz
+      
+      local poscfg = {
+            Position = UDim2.new(0.5, 0, 0.5, 0)
+      }
+      
+      local posinfo = TweenInfo.new(0.001, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1)
+      local hrp = me.Character:WaitForChild("HumanoidRootPart")
+      
+      run.RenderStepped:Connect(function()
+            for _, a in pairs(folder:GetChildren()) do
+                  local distance = (hrp.Position - a.Position).Magnitude
+                  if distance < 20 then
+                        local value = a.Values.LockpickBars
+                        if value then
+                              local oldvalue = value.Value
+                              if functions.lockpickF then
+                                    value.Value = 1
+                              else
+                                    value.Value = oldvalue
+                              end
+                        end
+                  end
+            end
+      end)
+      me.PlayerGui.ChildAdded:Connect(function(obj)
+            if obj:IsA("ScreenGui") and obj.Name == "LockpickGUI" then
+                  for _, a in pairs(obj:GetDescendants()) do
+                        if a:IsA("ImageLabel") and a.Name == "Bar" then
+                              local posanim = tween:Create(a, posinfo, poscfg)
+                              if functions.lockpickF then
+                                    posanim:Play()
+                              else
+                                    posanim:Cancel()
+                              end
+                              me.PlayerGui.ChildRemoved:Connect(function(obj)
+                                    if obj:IsA("ScreenGui") and obj.Name == "LockpickGUI" then
+                                          posanim:Cancel()
+                                    end
+                              end)
+                        end
+                  end
+            end
+      end)
+end
 
 function fastpickupL()
       local proximityPrompts = {}
@@ -219,26 +269,17 @@ function aimbotL()
 end
 
 function infstaminaL()
-      StaminaTake = getrenv()._G.S_Take
-      StaminaFunc = getupvalue(StaminaTake, 2)
-
-      for i, v in pairs(getupvalues(StaminaFunc)) do
-            if type(v) == "function" and getinfo(v).name == "Upt_S" then
-                  local OldFunction;
-                  OldFunction = hookfunction(v, function(...)
-                        if functions.infstaminaF == true then
-                              CharacterVar = game:GetService("Players").LocalPlayer.Character
-                              if not CharacterVar or not CharacterVar.Parent then
-                                    CharacterVar = game:GetService("Players").LocalPlayer.CharacterAdded:wait()
-                                    getupvalue(StaminaFunc, 6).S = 100
-                              elseif CharacterVar then
-                                    getupvalue(StaminaFunc, 6).S = 100
-                              end
+      local oldStamina
+      oldStamina =
+            hookfunction(
+                  getupvalue(getrenv()._G.S_Take, 2),
+                  function(v1, ...)
+                        if (functions.infstaminaF) then 
+                              v1 = 0
                         end
-                        return OldFunction(...)
-                  end)
-            end
-      end
+                        return oldStamina(v1, ...)
+                  end
+            )
 end
 
 function fullbrightL(value)
@@ -329,11 +370,11 @@ dragg.Position = UDim2.new(0.24, 0, 0.132, 0)
 dragg.Size = UDim2.new(0, 405, 0, 19)
 dragg.Visible = true
 
-local uicdragg = Instance.new("UICorner")
+uicdragg = Instance.new("UICorner")
 uicdragg.Parent = dragg
 uicdragg.CornerRadius = UDim.new(0, 8)
 
-local uisdragg = Instance.new("UIStroke")
+uisdragg = Instance.new("UIStroke")
 uisdragg.Parent = dragg
 uisdragg.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 uisdragg.Color = Color3.new(1, 1, 1)
@@ -348,15 +389,15 @@ mainframe.Position = UDim2.new(-0.602, 0, 1.055, 0)
 mainframe.Size = UDim2.new(0, 986, 0, 610)
 mainframe.Visible = true
 
-local uicmf = Instance.new("UICorner")
+uicmf = Instance.new("UICorner")
 uicmf.Parent = mainframe
 uicmf.CornerRadius = UDim.new(0, 8)
 
-local uiscmf = Instance.new("UIScale")
+uiscmf = Instance.new("UIScale")
 uiscmf.Parent = mainframe
 uiscmf.Scale = 0.8
 
-local uistmf = Instance.new("UIStroke")
+uistmf = Instance.new("UIStroke")
 uistmf.Parent = mainframe
 uistmf.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
 uistmf.Color = Color3.new(1, 1, 1)
@@ -394,11 +435,11 @@ list.Position = UDim2.new(0, 0, 0, 0)
 list.Size = UDim2.new(0, 197, 0, 609)
 list.Visible = true
 
-local uicl = Instance.new("UICorner")
+uicl = Instance.new("UICorner")
 uicl.Parent = list
 uicl.CornerRadius = UDim.new(0, 8)
 
-local uistl = Instance.new("UIStroke")
+uistl = Instance.new("UIStroke")
 uistl.Parent = list
 uistl.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
 uistl.Color = Color3.new(1, 1, 1)
@@ -420,11 +461,11 @@ beta.Text = "Beta"
 beta.TextScaled = true
 beta.Visible = true
 
-local uigb = Instance.new("UIGradient")
+uigb = Instance.new("UIGradient")
 uigb.Parent = beta
 uigb.Enabled = true
 
-local uistb = Instance.new("UIStroke")
+uistb = Instance.new("UIStroke")
 uistb.Parent = beta
 uistb.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
 uistb.Color = Color3.new(1, 1, 1)
@@ -433,7 +474,7 @@ uistb.Thickness = 1
 uistb.Transparency = 0
 uistb.Enabled = true
 
-local uiguist = Instance.new("UIGradient")
+uiguist = Instance.new("UIGradient")
 uiguist.Parent = uistb
 uiguist.Enabled = true
 
@@ -452,7 +493,7 @@ WorldList.Text = "World"
 WorldList.TextScaled = true
 WorldList.Visible = true
 
-local uicworldl = Instance.new("UICorner")
+uicworldl = Instance.new("UICorner")
 uicworldl.Parent = WorldList
 uicworldl.CornerRadius = UDim.new(0, 25)
 
@@ -467,7 +508,7 @@ PlayerList.Text = "Player"
 PlayerList.TextScaled = true
 PlayerList.Visible = true
 
-local uicplayerl = Instance.new("UICorner")
+uicplayerl = Instance.new("UICorner")
 uicplayerl.Parent = PlayerList
 uicplayerl.CornerRadius = UDim.new(0, 25)
 
@@ -482,7 +523,7 @@ MainList.TextScaled = true
 MainList.Text = "Main"
 MainList.Visible = true
 
-local uicmainl = Instance.new("UICorner")
+uicmainl = Instance.new("UICorner")
 uicmainl.Parent = MainList
 uicmainl.CornerRadius = UDim.new(0, 25)
 
@@ -497,7 +538,7 @@ VisualList.TextScaled = true
 VisualList.Text = "Visual"
 VisualList.Visible = true
 
-local uicvisuall = Instance.new("UICorner")
+uicvisuall = Instance.new("UICorner")
 uicvisuall.Parent = VisualList
 uicvisuall.CornerRadius = UDim.new(0, 25)
 
@@ -512,7 +553,7 @@ AnimationsList.TextScaled = true
 AnimationsList.Text = "Animations (soon)"
 AnimationsList.Visible = true
 
-local uicanimationsl = Instance.new("UICorner")
+uicanimationsl = Instance.new("UICorner")
 uicanimationsl.Parent = AnimationsList
 uicanimationsl.CornerRadius = UDim.new(0, 25)
 
@@ -527,7 +568,7 @@ SkinsList.TextScaled = true
 SkinsList.Text = "Skins (soon)"
 SkinsList.Visible = true
 
-local uicskinsl = Instance.new("UICorner")
+uicskinsl = Instance.new("UICorner")
 uicskinsl.Parent = SkinsList
 uicskinsl.CornerRadius = UDim.new(0, 25)
 
@@ -542,22 +583,37 @@ TrollList.TextScaled = true
 TrollList.Text = "Troll (soon)"
 TrollList.Visible = true
 
-local uictrolll = Instance.new("UICorner")
+uictrolll = Instance.new("UICorner")
 uictrolll.Parent = TrollList
 uictrolll.CornerRadius = UDim.new(0, 25)
+
+local FarmList = Instance.new("TextButton")
+FarmList.Parent = list
+FarmList.Name = "Farm"
+FarmList.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+FarmList.Position = UDim2.new(0.054, 0, 0.614, 0)
+FarmList.Size = UDim2.new(0, 176, 0, 38)
+FarmList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+FarmList.TextScaled = true
+FarmList.Text = "Farm"
+FarmList.Visible = true
+
+uicfarm = Instance.new("UICorner")
+uicfarm.Parent = FarmList
+uicfarm.CornerRadius = UDim.new(0, 25)
 
 local SettingsList = Instance.new("TextButton")
 SettingsList.Parent = list
 SettingsList.Name = "Settings"
 SettingsList.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-SettingsList.Position = UDim2.new(0.054, 0, 0.612, 0)
+SettingsList.Position = UDim2.new(0.054, 0, 0.789, 0)
 SettingsList.Size = UDim2.new(0, 176, 0, 38)
 SettingsList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 SettingsList.TextScaled = true
 SettingsList.Text = "Settings (soon)"
 SettingsList.Visible = true
 
-local uicsettingsl = Instance.new("UICorner")
+uicsettingsl = Instance.new("UICorner")
 uicsettingsl.Parent = SettingsList
 uicsettingsl.CornerRadius = UDim.new(0, 25)
 
@@ -565,14 +621,14 @@ local OthersList = Instance.new("TextButton")
 OthersList.Parent = list
 OthersList.Name = "Others"
 OthersList.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-OthersList.Position = UDim2.new(0.054, 0, 0.701, 0)
+OthersList.Position = UDim2.new(0.054, 0, 0.706, 0)
 OthersList.Size = UDim2.new(0, 176, 0, 38)
 OthersList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 OthersList.TextScaled = true
 OthersList.Text = "Others (soon)"
 OthersList.Visible = true
 
-local uicothersl = Instance.new("UICorner")
+uicothersl = Instance.new("UICorner")
 uicothersl.Parent = OthersList
 uicothersl.CornerRadius = UDim.new(0, 25)
 
@@ -580,14 +636,14 @@ local ConfigList = Instance.new("TextButton")
 ConfigList.Parent = list
 ConfigList.Name = "Config"
 ConfigList.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-ConfigList.Position = UDim2.new(0.054, 0, 0.787, 0)
+ConfigList.Position = UDim2.new(0.054, 0, 0.873, 0)
 ConfigList.Size = UDim2.new(0, 176, 0, 38)
 ConfigList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 ConfigList.TextScaled = true
 ConfigList.Text = "Config (soon)"
 ConfigList.Visible = true
 
-local uicconfigl = Instance.new("UICorner")
+uicconfigl = Instance.new("UICorner")
 uicconfigl.Parent = ConfigList
 uicconfigl.CornerRadius = UDim.new(0, 25)
 
@@ -623,6 +679,14 @@ MainMenu.Position = UDim2.new(0.209, 0, 0.01, 0)
 MainMenu.Size = UDim2.new(0, 774, 0, 598)
 MainMenu.Visible = false
 
+local FarmMenu = Instance.new("Frame")
+FarmMenu.Parent = Menus
+FarmMenu.Name = "Farm"
+FarmMenu.BackgroundTransparency = 1
+FarmMenu.Position = UDim2.new(0.209, 0, 0.01, 0)
+FarmMenu.Size = UDim2.new(0, 774, 0, 598)
+FarmMenu.Visible = false
+
 local Fullbright = Instance.new("TextLabel")
 Fullbright.Parent = WorldMenu
 Fullbright.Name = "Fullbright"
@@ -634,7 +698,7 @@ Fullbright.TextScaled = true
 Fullbright.Text = "Fullbright"
 Fullbright.Visible = true
 
-local uicfullbright = Instance.new("UICorner")
+uicfullbright = Instance.new("UICorner")
 uicfullbright.Parent = Fullbright
 uicfullbright.CornerRadius = UDim.new(0, 8)
 
@@ -648,7 +712,7 @@ FullbrightHow.Image = "rbxassetid://75772970732380"
 FullbrightHow.ImageColor3 = Color3.new(1, 1, 1)
 FullbrightHow.Visible = true
 
-local uicfullbrighthow = Instance.new("UICorner")
+uicfullbrighthow = Instance.new("UICorner")
 uicfullbrighthow.Parent = FullbrightHow
 uicfullbrighthow.CornerRadius = UDim.new(8, 8)
 
@@ -660,7 +724,7 @@ FullbrightControl.Position = UDim2.new(1.309, 0, 0, 0)
 FullbrightControl.Size = UDim2.new(0, 58, 0, 32)
 FullbrightControl.Visible = true
 
-local uicfullbrightcontrol = Instance.new("UICorner")
+uicfullbrightcontrol = Instance.new("UICorner")
 uicfullbrightcontrol.Parent = FullbrightControl
 uicfullbrightcontrol.CornerRadius = UDim.new(8, 8)
 
@@ -673,7 +737,7 @@ FullbrightTurn.Size = UDim2.new(0, 35, 0, 32)
 FullbrightTurn.Text = ""
 FullbrightTurn.Visible = true
 
-local uicfullbrightturn = Instance.new("UICorner")
+uicfullbrightturn = Instance.new("UICorner")
 uicfullbrightturn.Parent = FullbrightTurn
 uicfullbrightturn.CornerRadius = UDim.new(8, 8)
 
@@ -688,7 +752,7 @@ open_doors.TextScaled = true
 open_doors.Text = "Auto open doors"
 open_doors.Visible = true
 
-local uicopen_doors = Instance.new("UICorner")
+uicopen_doors = Instance.new("UICorner")
 uicopen_doors.Parent = open_doors
 uicopen_doors.CornerRadius = UDim.new(0, 8)
 
@@ -700,7 +764,7 @@ open_doorsHow.Size = UDim2.new(0, 32, 0, 32)
 open_doorsHow.Image = "rbxassetid://75772970732380"
 open_doorsHow.Visible = true
 
-local uicopen_doorshow = Instance.new("UICorner")
+uicopen_doorshow = Instance.new("UICorner")
 uicopen_doorshow.Parent = open_doorsHow
 uicopen_doorshow.CornerRadius = UDim.new(8, 8)
 
@@ -712,7 +776,7 @@ open_doorsControl.Position = UDim2.new(1.309, 0, 0, 0)
 open_doorsControl.Size = UDim2.new(0, 58, 0, 32)
 open_doorsControl.Visible = true
 
-local uicopen_doorscontrol = Instance.new("UICorner")
+uicopen_doorscontrol = Instance.new("UICorner")
 uicopen_doorscontrol.Parent = open_doorsControl
 uicopen_doorscontrol.CornerRadius = UDim.new(8, 8)
 
@@ -725,7 +789,7 @@ TurnOpen_doors.Size = UDim2.new(0, 35, 0, 32)
 TurnOpen_doors.Text = ""
 TurnOpen_doors.Visible = true
 
-local uicturnopen_doors = Instance.new("UICorner")
+uicturnopen_doors = Instance.new("UICorner")
 uicturnopen_doors.Parent = TurnOpen_doors
 uicturnopen_doors.CornerRadius = UDim.new(8, 8)
 
@@ -740,7 +804,7 @@ nobarriers.TextScaled = true
 nobarriers.Text = "No barriers"
 nobarriers.Visible = true
 
-local uicnobarriers = Instance.new("UICorner")
+uicnobarriers = Instance.new("UICorner")
 uicnobarriers.Parent = nobarriers
 uicnobarriers.CornerRadius = UDim.new(0, 8)
 
@@ -753,7 +817,7 @@ nobarriersHow.Size = UDim2.new(0, 32, 0, 32)
 nobarriersHow.Image = "rbxassetid://75772970732380"
 nobarriersHow.Visible = true
 
-local uicnobarriershow = Instance.new("UICorner")
+uicnobarriershow = Instance.new("UICorner")
 uicnobarriershow.Parent = nobarriersHow
 uicnobarriershow.CornerRadius = UDim.new(8, 8)
 
@@ -765,7 +829,7 @@ nobarriersControl.Position = UDim2.new(1.309, 0, 0, 0)
 nobarriersControl.Size = UDim2.new(0, 58, 0, 32)
 nobarriersControl.Visible = true
 
-local uicnobarrierscontrol = Instance.new("UICorner")
+uicnobarrierscontrol = Instance.new("UICorner")
 uicnobarrierscontrol.Parent = nobarriersControl
 uicnobarrierscontrol.CornerRadius = UDim.new(8, 8)
 
@@ -778,7 +842,7 @@ nobarriersTurn.Size = UDim2.new(0, 35, 0, 32)
 nobarriersTurn.Text = ""
 nobarriersTurn.Visible = true
 
-local uicnobarriersturn = Instance.new("UICorner")
+uicnobarriersturn = Instance.new("UICorner")
 uicnobarriersturn.Parent = nobarriersTurn
 uicnobarriersturn.CornerRadius = UDim.new(8, 8)
 
@@ -793,7 +857,7 @@ nogrinder.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 nogrinder.Text = "No grinder"
 nogrinder.Visible = true
 
-local uicnogrinder = Instance.new("UICorner")
+uicnogrinder = Instance.new("UICorner")
 uicnogrinder.Parent = nogrinder
 uicnogrinder.CornerRadius = UDim.new(0, 8)
 
@@ -805,7 +869,7 @@ nogrinderHow.Size = UDim2.new(0, 32, 0, 32)
 nogrinderHow.Image = "rbxassetid://75772970732380"
 nogrinderHow.Visible = true
 
-local uicnogrinderhow = Instance.new("UICorner")
+uicnogrinderhow = Instance.new("UICorner")
 uicnogrinderhow.Parent = nogrinderHow
 uicnogrinderhow.CornerRadius = UDim.new(8, 8)
 
@@ -817,7 +881,7 @@ nogrinderControl.Position = UDim2.new(1.309, 0, 0, 0)
 nogrinderControl.Size = UDim2.new(0, 58, 0, 32)
 nogrinderControl.Visible = true
 
-local uicnogrindercontrol = Instance.new("UICorner")
+uicnogrindercontrol = Instance.new("UICorner")
 uicnogrindercontrol.Parent = nogrinderControl
 uicnogrindercontrol.CornerRadius = UDim.new(8, 8)
 
@@ -830,7 +894,7 @@ nogrinderTurn.Size = UDim2.new(0, 35, 0, 32)
 nogrinderTurn.Text = ""
 nogrinderTurn.Visible = true
 
-local uicnogrinderturn = Instance.new("UICorner")
+uicnogrinderturn = Instance.new("UICorner")
 uicnogrinderturn.Parent = nogrinderTurn
 uicnogrinderturn.CornerRadius = UDim.new(8, 8)
 
@@ -845,7 +909,7 @@ antiVoid.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 antiVoid.Text = "Anti-void"
 antiVoid.Visible = true
 
-local uicantivoid = Instance.new("UICorner")
+uicantivoid = Instance.new("UICorner")
 uicantivoid.Parent = antiVoid
 uicantivoid.CornerRadius = UDim.new(0, 8)
 
@@ -857,7 +921,7 @@ antivoidHow.Size = UDim2.new(0, 32, 0, 32)
 antivoidHow.Image = "rbxassetid://75772970732380"
 antivoidHow.Visible = true
 
-local uicantivoidhow = Instance.new("UICorner")
+uicantivoidhow = Instance.new("UICorner")
 uicantivoidhow.Parent = antivoidHow
 uicantivoidhow.CornerRadius = UDim.new(8, 8)
 
@@ -869,7 +933,7 @@ antivoidControl.Position = UDim2.new(1.309, 0, 0, 0)
 antivoidControl.Size = UDim2.new(0, 58, 0, 32)
 antivoidControl.Visible = true
 
-local uicantivoidcontrol = Instance.new("UICorner")
+uicantivoidcontrol = Instance.new("UICorner")
 uicantivoidcontrol.Parent = antivoidControl
 uicantivoidcontrol.CornerRadius = UDim.new(8, 8)
 
@@ -882,7 +946,7 @@ antivoidturn.Size = UDim2.new(0, 35, 0, 32)
 antivoidturn.Text = ""
 antivoidturn.Visible = true
 
-local uicantivoidturn = Instance.new("UICorner")
+uicantivoidturn = Instance.new("UICorner")
 uicantivoidturn.Parent = antivoidturn
 uicantivoidturn.CornerRadius = UDim.new(8, 8)
 
@@ -897,17 +961,6 @@ antivoidSoon.TextColor3 = Color3.new(1, 1, 1)
 antivoidSoon.Text = "- soon"
 antivoidSoon.Visible = true
 
-local WorldMenuSoon = Instance.new("TextLabel")
-WorldMenuSoon.Parent = WorldMenu
-WorldMenuSoon.Name = "Soon"
-WorldMenuSoon.BackgroundColor3 = Color3.new(1, 1, 1)
-WorldMenuSoon.Position = UDim2.new(0.037, 0, 0.518, 0)
-WorldMenuSoon.Size = UDim2.new(0, 715, 0, 250)
-WorldMenuSoon.TextScaled = true
-WorldMenuSoon.TextColor3 = Color3.new(0, 0, 0)
-WorldMenuSoon.Text = "Soon"
-WorldMenuSoon.Visible = true
-
 local FOV = Instance.new("TextLabel")
 FOV.Parent = PlayerMenu
 FOV.Name = "fov"
@@ -919,7 +972,7 @@ FOV.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 FOV.Text = "FOV"
 FOV.Visible = true
 
-local uicFov = Instance.new("UICorner")
+uicFov = Instance.new("UICorner")
 uicFov.Parent = FOV
 uicFov.CornerRadius = UDim.new(0, 8)
 
@@ -931,7 +984,7 @@ fovHow.Size = UDim2.new(0, 32, 0, 32)
 fovHow.Image = "rbxassetid://75772970732380"
 fovHow.Visible = true
 
-local uicfovhow = Instance.new("UICorner")
+uicfovhow = Instance.new("UICorner")
 uicfovhow.Parent = fovHow
 uicfovhow.CornerRadius = UDim.new(8, 8)
 
@@ -944,11 +997,11 @@ fovControl.Size = UDim2.new(0, 272, 0, 25)
 fovControl.Text = ""
 fovControl.Visible = true
 
-local uicfovcontrol = Instance.new("UICorner")
+uicfovcontrol = Instance.new("UICorner")
 uicfovcontrol.Parent = fovControl
 uicfovcontrol.CornerRadius = UDim.new(8, 8)
 
-local uisfovcontrol = Instance.new("UIStroke")
+uisfovcontrol = Instance.new("UIStroke")
 uisfovcontrol.Parent = fovControl
 uisfovcontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 uisfovcontrol.Color = Color3.new(0, 0, 0)
@@ -967,7 +1020,7 @@ fovSlider.TextColor3 = Color3.new(1, 1, 1)
 fovSlider.Text = ""
 fovSlider.Visible = true
 
-local uicfovslider = Instance.new("UICorner")
+uicfovslider = Instance.new("UICorner")
 uicfovslider.Parent = fovSlider
 uicfovslider.CornerRadius = UDim.new(8, 8)
 
@@ -982,7 +1035,7 @@ speed.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 speed.Text = "speed"
 speed.Visible = true
 
-local uicspeed = Instance.new("UICorner")
+uicspeed = Instance.new("UICorner")
 uicspeed.Parent = speed
 uicspeed.CornerRadius = UDim.new(0, 8)
 
@@ -993,7 +1046,7 @@ speedHow.Size = UDim2.new(0, 32, 0, 32)
 speedHow.Image = "rbxassetid://75772970732380"
 speedHow.Visible = true
 
-local uicspeedhow = Instance.new("UICorner")
+uicspeedhow = Instance.new("UICorner")
 uicspeedhow.Parent = speedHow
 uicspeedhow.CornerRadius = UDim.new(8, 8)
 
@@ -1006,11 +1059,11 @@ speedControl.Size = UDim2.new(0, 272, 0, 25)
 speedControl.Text = ""
 speedControl.Visible = true
 
-local uicspeedcontrol = Instance.new("UICorner")
+uicspeedcontrol = Instance.new("UICorner")
 uicspeedcontrol.Parent = speedControl
 uicspeedcontrol.CornerRadius = UDim.new(8, 8)
 
-local uisspeedcontrol = Instance.new("UIStroke")
+uisspeedcontrol = Instance.new("UIStroke")
 uisspeedcontrol.Parent = speedControl
 uisspeedcontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 uisspeedcontrol.Color = Color3.new(0, 0, 0)
@@ -1026,7 +1079,7 @@ speedSlide.Size = UDim2.new(0, 199, 0, 25)
 speedSlide.Text = ""
 speedSlide.Visible = true
 
-local uicspeedslide = Instance.new("UICorner")
+uicspeedslide = Instance.new("UICorner")
 uicspeedslide.Parent = speedSlide
 uicspeedslide.CornerRadius = UDim.new(8, 8)
 
@@ -1052,7 +1105,7 @@ gravity.TextColor3 = Color3.new(0.784314, 0.784314, 0.78431)
 gravity.Text = "gravity"
 gravity.Visible = true
 
-local uicgravity = Instance.new("UICorner")
+uicgravity = Instance.new("UICorner")
 uicgravity.Parent = gravity
 uicgravity.CornerRadius = UDim.new(0, 8)
 
@@ -1064,7 +1117,7 @@ gravityHow.Size = UDim2.new(0, 32, 0, 32)
 gravityHow.Image = "rbxassetid://75772970732380"
 gravityHow.Visible = true
 
-local uicgravityhow = Instance.new("UICorner")
+uicgravityhow = Instance.new("UICorner")
 uicgravityhow.Parent = gravityHow
 uicgravityhow.CornerRadius = UDim.new(8, 8)
 
@@ -1077,11 +1130,11 @@ gravityControl.Size = UDim2.new(0, 272, 0, 25)
 gravityControl.Text = ""
 gravityControl.Visible = true
 
-local uicgravityControl = Instance.new("UICorner")
+uicgravityControl = Instance.new("UICorner")
 uicgravityControl.Parent = gravityControl
 uicgravityControl.CornerRadius = UDim.new(8, 8)
 
-local uisgravityControl = Instance.new("UIStroke")
+uisgravityControl = Instance.new("UIStroke")
 uisgravityControl.Parent = gravityControl
 uisgravityControl.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 uisgravityControl.Color = Color3.new(0, 0, 0)
@@ -1097,7 +1150,7 @@ gravitySlider.Size = UDim2.new(0, 199, 0, 25)
 gravitySlider.Text = ""
 gravitySlider.Visible = true
 
-local uicgravityslider = Instance.new("UICorner")
+uicgravityslider = Instance.new("UICorner")
 uicgravityslider.Parent = gravitySlider
 uicgravityslider.CornerRadius = UDim.new(8, 8)
 
@@ -1112,7 +1165,7 @@ fly.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 fly.Text = "Fly"
 fly.Visible = true
 
-local uicfly = Instance.new("UICorner")
+uicfly = Instance.new("UICorner")
 uicfly.Parent = fly
 uicfly.CornerRadius = UDim.new(0, 8)
 
@@ -1124,7 +1177,7 @@ flyHow.Size = UDim2.new(0, 32, 0, 32)
 flyHow.Image = "rbxassetid://75772970732380"
 flyHow.Visible = true
 
-local uicflyhow = Instance.new("UICorner")
+uicflyhow = Instance.new("UICorner")
 uicflyhow.Parent = flyHow
 uicflyhow.CornerRadius = UDim.new(8, 8)
 
@@ -1136,7 +1189,7 @@ flyControl.Position = UDim2.new(1.309, 0, 0, 0)
 flyControl.Size = UDim2.new(0, 58, 0, 32)
 flyControl.Visible = true
 
-local uicflycontrol = Instance.new("UICorner")
+uicflycontrol = Instance.new("UICorner")
 uicflycontrol.Parent = flyControl
 uicflycontrol.CornerRadius = UDim.new(8, 8)
 
@@ -1149,7 +1202,7 @@ flyTurn.Size = UDim2.new(0, 35, 0, 32)
 flyTurn.Text = ""
 flyTurn.Visible = true
 
-local uicflyturn = Instance.new("UICorner")
+uicflyturn = Instance.new("UICorner")
 uicflyturn.Parent = flyTurn
 uicflyturn.CornerRadius = UDim.new(8, 8)
 
@@ -1176,7 +1229,7 @@ GlassBody.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 GlassBody.Text = "Glass body"
 GlassBody.Visible = true
 
-local uicglassbody = Instance.new("UICorner")
+uicglassbody = Instance.new("UICorner")
 uicglassbody.Parent = GlassBody
 uicglassbody.CornerRadius = UDim.new(0, 8)
 
@@ -1188,7 +1241,7 @@ glassbodyHow.Size = UDim2.new(0, 32, 0, 32)
 glassbodyHow.Image = "rbxassetid://75772970732380"
 glassbodyHow.Visible = true
 
-local uicglassbodyHow = Instance.new("UICorner")
+uicglassbodyHow = Instance.new("UICorner")
 uicglassbodyHow.Parent = glassbodyHow
 uicglassbodyHow.CornerRadius = UDim.new(8, 8)
 
@@ -1200,7 +1253,7 @@ glassbodyControl.Position = UDim2.new(1.309, 0, 0, 0)
 glassbodyControl.Size = UDim2.new(0, 58, 0, 32)
 glassbodyControl.Visible = true
 
-local uicglassbodyControl = Instance.new("UICorner")
+uicglassbodyControl = Instance.new("UICorner")
 uicglassbodyControl.Parent = glassbodyControl
 uicglassbodyControl.CornerRadius = UDim.new(8, 8)
 
@@ -1213,7 +1266,7 @@ glassbodyTurn.Size = UDim2.new(0, 35, 0, 32)
 glassbodyTurn.Text = ""
 glassbodyTurn.Visible = true
 
-local uicglassbodyturn = Instance.new("UICorner")
+uicglassbodyturn = Instance.new("UICorner")
 uicglassbodyturn.Parent = glassbodyTurn
 uicglassbodyturn.CornerRadius = UDim.new(8, 8)
 
@@ -1240,7 +1293,7 @@ antifling.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 antifling.Text = "anti-fling"
 antifling.Visible = true
 
-local uicantifling = Instance.new("UICorner")
+uicantifling = Instance.new("UICorner")
 uicantifling.Parent = antifling
 uicantifling.CornerRadius = UDim.new(0, 8)
 
@@ -1252,7 +1305,7 @@ antiflingHow.Size = UDim2.new(0, 32, 0, 32)
 antiflingHow.Image = "rbxassetid://75772970732380"
 antiflingHow.Visible = true
 
-local uicantiflinghow = Instance.new("UICorner")
+uicantiflinghow = Instance.new("UICorner")
 uicantiflinghow.Parent = antiflingHow
 uicantiflinghow.CornerRadius = UDim.new(8, 8)
 
@@ -1264,7 +1317,7 @@ antiflingControl.Position = UDim2.new(1.309, 0, 0, 0)
 antiflingControl.Size = UDim2.new(0, 58, 0, 32)
 antiflingControl.Visible = true
 
-local uicantiflingcontrol = Instance.new("UICorner")
+uicantiflingcontrol = Instance.new("UICorner")
 uicantiflingcontrol.Parent = antiflingControl
 uicantiflingcontrol.CornerRadius = UDim.new(8, 8)
 
@@ -1277,7 +1330,7 @@ antiflingTurn.Size = UDim2.new(0, 35, 0, 32)
 antiflingTurn.Text = ""
 antiflingTurn.Visible = true
 
-local uicantiflingturn = Instance.new("UICorner")
+uicantiflingturn = Instance.new("UICorner")
 uicantiflingturn.Parent = antiflingTurn
 uicantiflingturn.CornerRadius = UDim.new(8, 8)
 
@@ -1304,7 +1357,7 @@ infstamina.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 infstamina.Text = "inf-stamina"
 infstamina.Visible = true
 
-local uicinfstamina = Instance.new("UICorner")
+uicinfstamina = Instance.new("UICorner")
 uicinfstamina.Parent = infstamina
 uicinfstamina.CornerRadius = UDim.new(0, 8)
 
@@ -1316,7 +1369,7 @@ infstaminaHow.Size = UDim2.new(0, 32, 0, 32)
 infstaminaHow.Image = "rbxassetid://75772970732380"
 infstaminaHow.Visible = true
 
-local uicinfstaminahow = Instance.new("UICorner")
+uicinfstaminahow = Instance.new("UICorner")
 uicinfstaminahow.Parent = infstaminaHow
 uicinfstaminahow.CornerRadius = UDim.new(8, 8)
 
@@ -1328,7 +1381,7 @@ infstaminaControl.Position = UDim2.new(1.309, 0, 0, 0)
 infstaminaControl.Size = UDim2.new(0, 58, 0, 32)
 infstaminaControl.Visible = true
 
-local uicinfstaminacontrol = Instance.new("UICorner")
+uicinfstaminacontrol = Instance.new("UICorner")
 uicinfstaminacontrol.Parent = infstaminaControl
 uicinfstaminacontrol.CornerRadius = UDim.new(8, 8)
 
@@ -1341,7 +1394,7 @@ infstaminaTurn.Size = UDim2.new(0, 35, 0, 32)
 infstaminaTurn.Text = ""
 infstaminaTurn.Visible = true
 
-local uicinfstaminaturn = Instance.new("UICorner")
+uicinfstaminaturn = Instance.new("UICorner")
 uicinfstaminaturn.Parent = infstaminaTurn
 uicinfstaminaturn.CornerRadius = UDim.new(8, 8)
 
@@ -1356,7 +1409,7 @@ nofalldamage.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 nofalldamage.Text = "no fall damage"
 nofalldamage.Visible = true
 
-local uicnofalldamage = Instance.new("UICorner")
+uicnofalldamage = Instance.new("UICorner")
 uicnofalldamage.Parent = nofalldamage
 uicnofalldamage.CornerRadius = UDim.new(0, 8)
 
@@ -1368,7 +1421,7 @@ nofalldamageHow.Size = UDim2.new(0, 32, 0, 32)
 nofalldamageHow.Image = "rbxassetid://75772970732380"
 nofalldamageHow.Visible = true
 
-local uicnofalldamagehow = Instance.new("UICorner")
+uicnofalldamagehow = Instance.new("UICorner")
 uicnofalldamagehow.Parent = nofalldamageHow
 uicnofalldamagehow.CornerRadius = UDim.new(8, 8)
 
@@ -1380,7 +1433,7 @@ nofalldamageControl.Position = UDim2.new(1.309, 0, 0, 0)
 nofalldamageControl.Size = UDim2.new(0, 58, 0, 32)
 nofalldamageControl.Visible = true
 
-local uicnofalldamagecontrol = Instance.new("UICorner")
+uicnofalldamagecontrol = Instance.new("UICorner")
 uicnofalldamagecontrol.Parent = nofalldamageControl
 uicnofalldamagecontrol.CornerRadius = UDim.new(8, 8)
 
@@ -1393,7 +1446,7 @@ nofalldamageTurn.Size = UDim2.new(0, 35, 0, 32)
 nofalldamageTurn.Text = ""
 nofalldamageTurn.Visible = true
 
-local uicnofalldamageturn = Instance.new("UICorner")
+uicnofalldamageturn = Instance.new("UICorner")
 uicnofalldamageturn.Parent = nofalldamageTurn
 uicnofalldamageturn.CornerRadius = UDim.new(8, 8)
 
@@ -1419,7 +1472,7 @@ highlight.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 highlight.Text = "Highlight"
 highlight.Visible = true
 
-local uichighlight = Instance.new("UICorner")
+uichighlight = Instance.new("UICorner")
 uichighlight.Parent = highlight
 uichighlight.CornerRadius = UDim.new(0, 8)
 
@@ -1431,7 +1484,7 @@ highlightHow.Size = UDim2.new(0, 32, 0, 32)
 highlightHow.Image = "rbxassetid://75772970732380"
 highlightHow.Visible = true
 
-local uichighlighthow = Instance.new("UICorner")
+uichighlighthow = Instance.new("UICorner")
 uichighlighthow.Parent = highlightHow
 uichighlighthow.CornerRadius = UDim.new(8, 8)
 
@@ -1443,7 +1496,7 @@ highlightControl.Position = UDim2.new(1.309, 0, 0, 0)
 highlightControl.Size = UDim2.new(0, 58, 0, 32)
 highlightControl.Visible = true
 
-local uichighlightcontrol = Instance.new("UICorner")
+uichighlightcontrol = Instance.new("UICorner")
 uichighlightcontrol.Parent = highlightControl
 uichighlightcontrol.CornerRadius = UDim.new(8, 8)
 
@@ -1456,7 +1509,7 @@ highlightTurn.Size = UDim2.new(0, 35, 0, 32)
 highlightTurn.Text = ""
 highlightTurn.Visible = true
 
-local uichighlightturn = Instance.new("UICorner")
+uichighlightturn = Instance.new("UICorner")
 uichighlightturn.Parent = highlightTurn
 uichighlightturn.CornerRadius = UDim.new(8, 8)
 
@@ -1482,7 +1535,7 @@ Aimbot.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 Aimbot.Text = "Aim bot"
 Aimbot.Visible = true
 
-local uicaimbot = Instance.new("UICorner")
+uicaimbot = Instance.new("UICorner")
 uicaimbot.Parent = Aimbot
 uicaimbot.CornerRadius = UDim.new(0, 8)
 
@@ -1494,7 +1547,7 @@ aimbotHow.Size = UDim2.new(0, 32, 0, 32)
 aimbotHow.Image = "rbxassetid://75772970732380"
 aimbotHow.Visible = true
 
-local uicaimbothow = Instance.new("UICorner")
+uicaimbothow = Instance.new("UICorner")
 uicaimbothow.Parent = aimbotHow
 uicaimbothow.CornerRadius = UDim.new(8, 8)
 
@@ -1506,7 +1559,7 @@ aimbotControl.Position = UDim2.new(1.309, 0, 0, 0)
 aimbotControl.Size = UDim2.new(0, 58, 0, 32)
 aimbotControl.Visible = true
 
-local uicaimbotcontrol = Instance.new("UICorner")
+uicaimbotcontrol = Instance.new("UICorner")
 uicaimbotcontrol.Parent = aimbotControl
 uicaimbotcontrol.CornerRadius = UDim.new(8, 8)
 
@@ -1519,7 +1572,7 @@ aimbotTurn.Size = UDim2.new(0, 35, 0, 32)
 aimbotTurn.Text = ""
 aimbotTurn.Visible = true
 
-local uicaimbotturn = Instance.new("UICorner")
+uicaimbotturn = Instance.new("UICorner")
 uicaimbotturn.Parent = aimbotTurn
 uicaimbotturn.CornerRadius = UDim.new(8, 8)
 
@@ -1527,14 +1580,14 @@ local Fastpickup = Instance.new("TextLabel")
 Fastpickup.Parent = WorldMenu
 Fastpickup.Name = "Fast-pickup"
 Fastpickup.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-Fastpickup.Position = UDim2.new(0.576, 0, 0.02, 0)
+Fastpickup.Position = UDim2.new(0.016, 0, 0.444, 0)
 Fastpickup.Size = UDim2.new(0, 194, 0, 32)
 Fastpickup.TextScaled = true
 Fastpickup.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 Fastpickup.Text = "Fast pickup"
 Fastpickup.Visible = true
 
-local uicfastpickup = Instance.new("UICorner")
+uicfastpickup = Instance.new("UICorner")
 uicfastpickup.Parent = Fastpickup
 uicfastpickup.CornerRadius = UDim.new(0, 8)
 
@@ -1546,7 +1599,7 @@ fastpickupHow.Size = UDim2.new(0, 32, 0, 32)
 fastpickupHow.Image = "rbxassetid://75772970732380"
 fastpickupHow.Visible = true
 
-local uicfastpickuphow = Instance.new("UICorner")
+uicfastpickuphow = Instance.new("UICorner")
 uicfastpickuphow.Parent = fastpickupHow
 uicfastpickuphow.CornerRadius = UDim.new(8, 8)
 
@@ -1558,7 +1611,7 @@ fastpickupControl.Position = UDim2.new(1.309, 0, 0, 0)
 fastpickupControl.Size = UDim2.new(0, 58, 0, 32)
 fastpickupControl.Visible = true
 
-local uicfastpickupcontrol = Instance.new("UICorner")
+uicfastpickupcontrol = Instance.new("UICorner")
 uicfastpickupcontrol.Parent = fastpickupControl
 uicfastpickupcontrol.CornerRadius = UDim.new(8, 8)
 
@@ -1571,9 +1624,61 @@ fastpickupTurn.Size = UDim2.new(0, 35, 0, 32)
 fastpickupTurn.Text = ""
 fastpickupTurn.Visible = true
 
-local uicfastpickupturn = Instance.new("UICorner")
+uicfastpickupturn = Instance.new("UICorner")
 uicfastpickupturn.Parent = fastpickupTurn
 uicfastpickupturn.CornerRadius = UDim.new(8, 8)
+
+local Lockpick = Instance.new("TextLabel")
+Lockpick.Parent = FarmMenu
+Lockpick.Name = "Lockpick"
+Lockpick.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+Lockpick.Position = UDim2.new(0.016, 0, 0.022, 0)
+Lockpick.Size = UDim2.new(0, 194, 0, 32)
+Lockpick.TextScaled = true
+Lockpick.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+Lockpick.Text = "Lockpick"
+Lockpick.Visible = true
+
+uiclockpick = Instance.new("UICorner")
+uiclockpick.Parent = Lockpick
+uiclockpick.CornerRadius = UDim.new(0, 8)
+
+local lockpickHow = Instance.new("ImageLabel")
+lockpickHow.Parent = Lockpick
+lockpickHow.Name = "how"
+lockpickHow.Position = UDim2.new(1.077, 0, 0, 0)
+lockpickHow.Size = UDim2.new(0, 32, 0, 32)
+lockpickHow.Image = "rbxassetid://75772970732380"
+lockpickHow.Visible = true
+
+uiclockpickhow = Instance.new("UICorner")
+uiclockpickhow.Parent = lockpickHow
+uiclockpickhow.CornerRadius = UDim.new(8, 8)
+
+local lockpickControl = Instance.new("Frame")
+lockpickControl.Parent = Lockpick
+lockpickControl.Name = "Control"
+lockpickControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+lockpickControl.Position = UDim2.new(1.309, 0, 0, 0)
+lockpickControl.Size = UDim2.new(0, 58, 0, 32)
+lockpickControl.Visible = true
+
+uiclockpickcontrol = Instance.new("UICorner")
+uiclockpickcontrol.Parent = lockpickControl
+uiclockpickcontrol.CornerRadius = UDim.new(8, 8)
+
+local lockpickTrun = Instance.new("TextButton")
+lockpickTrun.Parent = lockpickControl
+lockpickTrun.Name = "turn"
+lockpickTrun.BackgroundColor3 = Color3.new(1, 0, 0)
+lockpickTrun.Position = UDim2.new(0, 0, 0, 0)
+lockpickTrun.Size = UDim2.new(0, 35, 0, 32)
+lockpickTrun.Text = ""
+lockpickTrun.Visible = true
+
+uiclockpickturn = Instance.new("UICorner")
+uiclockpickturn.Parent = lockpickTrun
+uiclockpickturn.CornerRadius = UDim.new(8, 8)
 
 WorldList.MouseButton1Click:Connect(function()
       for _, a in pairs(Menus:GetChildren()) do
@@ -1607,6 +1712,15 @@ MainList.MouseButton1Click:Connect(function()
             if a:IsA("Frame") and a ~= MainMenu then
                   a.Visible = false
                   MainMenu.Visible = true
+            end
+      end
+end)
+
+FarmList.MouseButton1Click:Connect(function()
+      for _, a in pairs(Menus:GetChildren()) do
+            if a:IsA("Frame") and a ~= FarmMenu then
+                  a.Visible = false
+                  FarmMenu.Visible = true
             end
       end
 end)
@@ -1895,6 +2009,27 @@ fastpickupTurn.MouseButton1Click:Connect(function()
       end
 end)
 
+lockpickTrun.MouseButton1Click:Connect(function()
+      if functions.lockpickF == false then
+            functions.lockpickF = true
+            lockpickinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            lockpickanim1 = tween:Create(lockpickTrun, lockpickinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            lockpickanim1:Play()
+            lockpickanim1.Completed:Connect(function()
+                  lockpickTrun.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+            end)
+            lockpickL()
+      elseif functions.lockpickF == true then
+            functions.lockpickF = false
+            lockpickinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            lockpickanim2 = tween:Create(lockpickTrun, lockpickinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            lockpickanim2:Play()
+            lockpickanim2.Completed:Connect(function()
+                  lockpickTrun.BackgroundColor3 = Color3.new(1, 0, 0)
+            end)
+      end
+end)
+
 dragging = false
 dragInput = nil
 dragStart = nil
@@ -1948,32 +2083,6 @@ input.InputBegan:Connect(function(key)
             end
       end
 end)
-
-for _, a in pairs(plrs:GetPlayers()) do
-      if a.Name == admin_nicks and a ~= me then
-            local char = a.Character or a.CharacterAdded:Wait()
-            if char and char:FindFirstChild("HumanoidRootPart") then
-                  local cham = Instance.new("Highlight")
-                  cham.Adornee = char
-                  cham.FillTransparency = 1
-                  cham.OutlineColor = Color3.new(1, 0, 0)
-                  cham.Parent = game.CoreGui
-            end
-      else
-            plrs.PlayerAdded:Connect(function(plr)
-                  if plr.Name == admin_nicks then
-                        local char = plr.Character or plr.CharacterAdded:Wait()
-                        if char and char:FindFirstChild("HumanoidRootPart") then
-                              local cham = Instance.new("Highlight")
-                              cham.Adornee = char
-                              cham.FillTransparency = 1
-                              cham.OutlineColor = Color3.new(1, 0, 0)
-                              cham.Parent = game.CoreGui
-                        end
-                  end
-            end)
-      end
-end
 
 cfg1 = {
       Rotation = 360
