@@ -16,7 +16,7 @@ local functions = {
       flyF = nil;
       glassbodyF = nil;
       anti_flingF = nil;
-      infstaminaF = false;
+      infstaminaF = nil;
       nofalldamageF = false;
       highlightF = false;
       aimbotF = false;
@@ -36,46 +36,43 @@ ChatFrame.ChatChannelParentFrame.Visible = true
 ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
 
 function lockpickL()
-      local folder = game.Workspace:WaitForChild("Map").BredMakurz
-      
-      local poscfg = {
+      local config = {
             Position = UDim2.new(0.5, 0, 0.5, 0)
       }
-      
-      local posinfo = TweenInfo.new(0.001, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1)
-      local hrp = me.Character:WaitForChild("HumanoidRootPart")
-      
-      run.RenderStepped:Connect(function()
-            for _, a in pairs(folder:GetChildren()) do
-                  local distance = (hrp.Position - a.Position).Magnitude
-                  if distance < 20 then
-                        local value = a.Values.LockpickBars
-                        if value then
-                              local oldvalue = value.Value
-                              if functions.lockpickF then
-                                    value.Value = 1
-                              else
-                                    value.Value = oldvalue
-                              end
-                        end
+
+      local info = TweenInfo.new(0.001, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1)
+
+      for i, a in pairs(game:GetDescendants()) do
+            if a.Name == "LockpickBars" then
+                  local oldbars = a.Value
+                  if functions.lockpickF then
+                        a.Value = 1
+                  else
+                        a.Value = oldbars
                   end
             end
-      end)
-      me.PlayerGui.ChildAdded:Connect(function(obj)
-            if obj:IsA("ScreenGui") and obj.Name == "LockpickGUI" then
-                  for _, a in pairs(obj:GetDescendants()) do
-                        if a:IsA("ImageLabel") and a.Name == "Bar" then
-                              local posanim = tween:Create(a, posinfo, poscfg)
+      end
+
+      me.PlayerGui.ChildAdded:Connect(function(object)
+            if object:IsA("ScreenGui") and object.Name == "LockpickGUI" then
+                  for i, a in pairs(object:GetDescendants()) do
+                        if a:IsA("NumberValue") and a.Name == "PosV" then
+                              local oldvalue = a.Value
                               if functions.lockpickF then
-                                    posanim:Play()
+                                    a.Value = 0
                               else
-                                    posanim:Cancel()
+                                    a.Value = oldvalue
                               end
-                              me.PlayerGui.ChildRemoved:Connect(function(obj)
-                                    if obj:IsA("ScreenGui") and obj.Name == "LockpickGUI" then
-                                          posanim:Cancel()
+                        end
+                        for _, bar in pairs(object:GetDescendants()) do
+                              if bar:IsA("ImageLabel") and bar.Name == "Bar" then
+                                    local anim = tween:Create(bar, info, config)
+                                    if functions.lockpickF then
+                                          anim:Play()
+                                    else
+                                          anim:Cancel()
                                     end
-                              end)
+                              end
                         end
                   end
             end
@@ -357,7 +354,7 @@ function nogrinderL(value)
 end
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = game.CoreGui
+Gui.Parent = me.PlayerGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
