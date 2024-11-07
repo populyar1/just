@@ -7,6 +7,20 @@ local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
 
+local cmds = {"leave", "reset"}
+
+local Commands = {
+      leave = function()
+            game:Shutdown()
+      end,
+      reset = function()
+            me.Character.Humanoid.Health = 0
+      end,
+      cmds = function()
+            ConsoleText(table.concat(cmds, ", "))
+      end,
+}
+
 local functions = {
       FullbrightF = false;
       AutoOpenDoorsF = false;
@@ -14,7 +28,6 @@ local functions = {
       NoGrinderF = false;
       anti_voidF = nil;
       flyF = nil;
-      glassbodyF = nil;
       anti_flingF = nil;
       infstaminaF = false;
       nofalldamageF = false;
@@ -406,7 +419,7 @@ uistmf.Enabled = true
 local console = Instance.new("Frame")
 console.Parent = mainframe
 console.Name = "Console"
-console.BackgroundColor3 = Color3.new(0, 0, 0)
+console.BackgroundColor3 = Color3.new(0.152941, 0.152941, 0.152941)
 console.Position = UDim2.new(1.009, 0, 0.031, 0)
 console.Size = UDim2.new(0, 550, 0, 580)
 console.Visible = true
@@ -417,12 +430,35 @@ consoletext.Name = "ConsoleText"
 consoletext.BackgroundTransparency = 1
 consoletext.Position = UDim2.new(0, 0, 0, 0)
 consoletext.Size = UDim2.new(0, 550, 0, 580)
-consoletext.TextColor3 = Color3.new(0, 1, 0)
-consoletext.TextSize = 15
-consoletext.Text = " output - soon"
+consoletext.TextColor3 = Color3.new(1, 0, 0)
+consoletext.TextSize = 18
+consoletext.Text = ""
+consoletext.TextWrapped = true
 consoletext.TextXAlignment = Enum.TextXAlignment.Left
 consoletext.TextYAlignment = Enum.TextYAlignment.Top
 consoletext.Visible = true
+
+local commands = Instance.new("TextBox")
+commands.Parent = console
+commands.Name = "command"
+commands.BackgroundColor3 = Color3.new(0.168627, 0.168627, 0.168627)
+commands.Position = UDim2.new(-0, 0, 1, 0)
+commands.Size = UDim2.new(0, 550, 0, 34)
+commands.ClearTextOnFocus = false
+commands.PlaceholderText = "Console Bar"
+commands.PlaceholderColor3 = Color3.new(0.709804, 0.709804, 0.709804)
+commands.TextSize = 17
+commands.TextColor3 = Color3.new(1, 1, 1)
+commands.Text = ""
+commands.TextXAlignment = Enum.TextXAlignment.Left
+commands.Visible = true
+
+local uiscommands = Instance.new("UIStroke")
+uiscommands.Parent = commands
+uiscommands.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uiscommands.Color = Color3.new(0.101961, 0.101961, 0.101961)
+uiscommands.LineJoinMode = Enum.LineJoinMode.Round
+uiscommands.Thickness = 2
 
 local list = Instance.new("Frame")
 list.Parent = mainframe
@@ -1677,6 +1713,23 @@ uiclockpickturn = Instance.new("UICorner")
 uiclockpickturn.Parent = lockpickTrun
 uiclockpickturn.CornerRadius = UDim.new(8, 8)
 
+local stroke = 1
+
+function ConsoleText(text)
+      if stroke > 20 then
+            consoletext.Text = ""
+            stroke = 1
+      end
+      
+      if consoletext.Text == "" then
+            consoletext.Text = stroke..".  "..text
+            stroke += 1
+      else
+            consoletext.Text = consoletext.Text.."\n"..stroke..".  "..text
+            stroke += 1
+      end
+end
+
 WorldList.MouseButton1Click:Connect(function()
       for _, a in pairs(Menus:GetChildren()) do
             if a:IsA("Frame") and a ~= WorldMenu then
@@ -1952,7 +2005,12 @@ infstaminaTurn.MouseButton1Click:Connect(function()
             infstaminaanim1.Completed:Connect(function()
                   infstaminaTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
             end)
-            infstaminaL()
+            local succ, err = pcall(function()
+                  infstaminaL()
+            end)
+            if not succ then
+                  ConsoleText("Patched or your exploit not support")
+            end
       elseif functions.infstaminaF == true then
             functions.infstaminaF = false
             infstaminainfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
@@ -2025,6 +2083,20 @@ lockpickTrun.MouseButton1Click:Connect(function()
                   lockpickTrun.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
       end
+end)
+
+commands.FocusLost:Connect(function()
+      if commands.Text == "" then
+            return
+      else
+            local commandFunc = Commands[commands.Text]
+            if commandFunc then
+                  commandFunc()
+            else
+                  ConsoleText("Command not found!")
+            end
+      end
+      commands.Text = ""
 end)
 
 dragging = false
