@@ -367,7 +367,7 @@ function nogrinderL(value)
 end
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = game.CoreGui
+Gui.Parent = me.PlayerGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -2086,17 +2086,23 @@ lockpickTrun.MouseButton1Click:Connect(function()
 end)
 
 commands.FocusLost:Connect(function()
-      if commands.Text == "" then
-            return
-      else
-            local commandFunc = Commands[commands.Text]
-            if commandFunc then
-                  commandFunc()
+      local succ, err = pcall(function()
+            if commands.Text == "" then
+                  return
             else
-                  ConsoleText("Command not found!")
+                  local commandFunc = Commands[commands.Text]
+                  if commandFunc then
+                        commandFunc()
+                  else
+                        ConsoleText("Command not found!")
+                  end
             end
+            commands.Text = ""
+      end)
+      if not succ then
+            ConsoleText("Error: "..err)
+            commands.Text = ""
       end
-      commands.Text = ""
 end)
 
 dragging = false
