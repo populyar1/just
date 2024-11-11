@@ -7,7 +7,7 @@ local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
 
-local cmds = {"leave", "reset"}
+local cmds = {"leave", "reset", "clear"}
 
 local Commands = {
       leave = function()
@@ -17,7 +17,10 @@ local Commands = {
             me.Character.Humanoid.Health = 0
       end,
       cmds = function()
-            ConsoleText(table.concat(cmds, ", "))
+            ConsoleText(table.concat(cmds, ", "), "succes")
+      end,
+      clear = function()
+            ConsoleText("")
       end,
 }
 
@@ -34,7 +37,7 @@ local functions = {
       highlightF = false;
       aimbotF = false;
       fast_pickupF = false;
-      lockpickF = false;
+      lockpickF = nil;
 }
 
 local remotes = {
@@ -42,329 +45,13 @@ local remotes = {
       fovslider_dragging = false;
       fov_connection;
       gravityslider_dragging = false;
+      circle = nil;
+      circle_pos = nil;
 }
 
 local ChatFrame = me.PlayerGui.Chat.Frame
 ChatFrame.ChatChannelParentFrame.Visible = true
 ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
-
-function lockpickL()
-      local config = {
-            Position = UDim2.new(0.5, 0, 0.5, 0)
-      }
-
-      local info = TweenInfo.new(0.001, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1)
-
-      for i, a in pairs(game:GetDescendants()) do
-            if a.Name == "LockpickBars" then
-                  local oldbars = a.Value
-                  if functions.lockpickF then
-                        a.Value = 1
-                  else
-                        a.Value = oldbars
-                  end
-            end
-      end
-
-      me.PlayerGui.ChildAdded:Connect(function(object)
-            if object:IsA("ScreenGui") and object.Name == "LockpickGUI" then
-                  for i, a in pairs(object:GetDescendants()) do
-                        if a:IsA("NumberValue") and a.Name == "PosV" then
-                              local oldvalue = a.Value
-                              if functions.lockpickF then
-                                    a.Value = 0
-                              else
-                                    a.Value = oldvalue
-                              end
-                        end
-                        for _, bar in pairs(object:GetDescendants()) do
-                              if bar:IsA("ImageLabel") and bar.Name == "Bar" then
-                                    local anim = tween:Create(bar, info, config)
-                                    if functions.lockpickF then
-                                          anim:Play()
-                                    else
-                                          anim:Cancel()
-                                    end
-                              end
-                        end
-                  end
-            end
-      end)
-end
-
-function fastpickupL()
-      local proximityPrompts = {}
-
-      workspace.DescendantAdded:Connect(function(item)
-            if item:IsA("ProximityPrompt") then
-                  proximityPrompts[item] = {
-                        originalDuration = item.HoldDuration
-                  }
-            end
-      end)
-
-      run.RenderStepped:Connect(function()
-            for prompt, info in pairs(proximityPrompts) do
-                  if functions.fast_pickupF then
-                        prompt.HoldDuration = 0
-                  end
-            end
-      end)
-end
-
-function highlightL()
-      local function add(character)
-            if not character:FindFirstChild("Highlight") then
-                  local highlight = Instance.new("Highlight")
-                  highlight.Adornee = character
-                  highlight.FillTransparency = 1
-                  highlight.Parent = character
-            end
-      end
-
-      local function remove(character)
-            local highlight = character:FindFirstChild("Highlight")
-            if highlight then
-                  highlight:Destroy()
-            end
-      end
-
-      local function isview(character)
-            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-            if humanoidRootPart then
-                  local Noscreen, Inscreen = camera:WorldToScreenPoint(humanoidRootPart.Position)
-                  return Inscreen
-            end
-            return false
-      end
-
-      local function update()
-            local Players = plrs:GetPlayers()
-            for _, plr in ipairs(Players) do
-                  if plr ~= me then
-                        local char = plr.Character
-                        if char then
-                              if functions.highlightF then
-                                    if isview(char) then
-                                          add(char)
-                                    else
-                                          remove(char)
-                                    end
-                              end
-                        end
-                  end
-            end
-      end
-      run.RenderStepped:Connect(update)
-end
-
-function aimbotL()
-      local aimpart = "Head"
-      local target = nil
-      local radius = 50
-      local pressed = false
-      local aimtarget
-      local canusing = false
-      local FirstPerson = true
-      local velocity = true
-      local predict = 13
-
-      local viewport = function(P)
-            return camera:WorldToViewportPoint(P)
-      end
-
-      local screenpoint = function(P)
-            return camera:WorldToScreenPoint(P)
-      end
-
-      local getobject = function(T)
-            if T and T:FindFirstChild(aimpart) and me and me.Character:FindFirstChild("Head") then
-                  local ray = Ray.new(T[aimpart].Position, me.Character.Head.Position)
-                  local raypos = workspace:FindPartOnRay(ray)
-                  if raypos then
-                        return ray:IsDescendantOf(T)
-                  end
-            end
-      end
-
-      local gettarget = function()
-            local Players = {}
-            local player_hold = {}
-            local distances = {}
-            for _, a in pairs(plrs:GetPlayers()) do
-                  if a ~= me then
-                        table.insert(Players, a)
-                  end
-            end
-            for i, v in pairs(Players) do
-                  if v.Character ~= nil then
-                        local aim = v.Character:FindFirstChild("Head")
-                        local distance = (v.Character:FindFirstChild("Head").Position - camera.CFrame.p).Magnitude
-                        local ray = Ray.new(camera.CFrame.p, (mouse.Hit.p - camera.CFrame.p).Unit * distance)
-                        local hit, pos = game.Workspace:FindPartOnRay(ray, game.Workspace)
-                        local diff = math.floor((pos - aim.Position).Magnitude)
-                        player_hold[v.Name..i] = {}
-                        player_hold[v.Name..i].dist = distance
-                        player_hold[v.Name..i].plr = v
-                        player_hold[v.Name..i].diff = diff
-                        table.insert(distances, diff)
-                  end
-            end
-            if #distances == 0 then
-                  return nil
-            end
-
-            local l_distance = math.floor(math.min(unpack(distances)))
-            if l_distance > radius then
-                  return nil
-            end
-
-            for _, a in pairs(player_hold) do
-                  if a.diff == l_distance then
-                        return a.plr
-                  end
-            end
-            return nil
-      end
-
-      input.InputBegan:Connect(function(key)
-            if not (input:GetFocusedTextBox()) then
-                  if key.UserInputType == Enum.UserInputType.MouseButton2 then
-                        pcall(function()
-                              if pressed == false then
-                                    pressed = true
-                                    local target = gettarget()
-                                    if target ~= nil then
-                                          aimtarget = target
-                                    else
-                                          return target
-                                    end
-                              end
-                        end)
-                  end
-            end
-      end)
-
-      input.InputEnded:Connect(function(key)
-            if not (input:GetFocusedTextBox()) then
-                  if key.UserInputType == Enum.UserInputType.MouseButton2 then
-                        aimtarget = nil
-                        pressed = false
-                  end
-            end
-      end)
-
-      run.RenderStepped:Connect(function()
-            if FirstPerson == true then
-                  local magnitude = (camera.Focus.p - camera.CoordinateFrame.p).Magnitude
-                  if magnitude <= 1.5 then
-                        canusing = true
-                  else
-                        canusing = false
-                  end
-            end
-
-            if functions.aimbotF and pressed == true then
-                  if aimtarget and aimtarget.Character and aimtarget.Character:FindFirstChild(aimpart) and aimtarget.Character:FindFirstChild("Humanoid").Health >= 15 then
-                        if FirstPerson == true and canusing == true then
-                              if velocity == true then
-                                    camera.CFrame = CFrame.new(camera.CFrame.p, aimtarget.Character[aimpart].Position + aimtarget.Character[aimpart].Velocity / predict)
-                              else
-                                    camera.CFrame = CFrame.new(camera.CFrame.p, aimtarget.Character[aimpart].Position)
-                              end
-                        end
-                  end
-            end
-      end)
-end
-
-function infstaminaL()
-      local oldStamina
-      oldStamina =
-            hookfunction(
-                  getupvalue(getrenv()._G.S_Take, 2),
-                  function(v1, ...)
-                        if (functions.infstaminaF) then 
-                              v1 = 0
-                        end
-                        return oldStamina(v1, ...)
-                  end
-            )
-end
-
-function fullbrightL(value)
-     light.ExposureCompensation = value
-end
-
-function open_doorsL()
-      remotes.open_doorsRun = run.RenderStepped:Connect(function()
-            for _, i in pairs(game.Workspace:WaitForChild("Map").Doors:GetChildren()) do
-                  if (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - i:FindFirstChild("DoorBase").Position).Magnitude <= 20 then
-                        if i:FindFirstChild("Values"):FindFirstChild("Locked").Value == true then
-                              i:FindFirstChild("Events"):FindFirstChild("Toggle"):FireServer("Unlock", i.Lock)
-                              local b1 = "Open"
-                              local b2 = i:FindFirstChild("Knob2")
-                              i:FindFirstChild("Events"):FindFirstChild("Toggle"):FireServer(b1, b2)
-                        else
-                              for _, a in pairs(game.Workspace:WaitForChild("Map").Doors:GetChildren()) do
-                                    if (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - a:FindFirstChild("DoorBase").Position).Magnitude <= 20 then
-                                          local opened = a:FindFirstChild("Values"):FindFirstChild("Open")
-                                          if opened and opened.Value == false then
-                                                local a1 = "Open"
-                                                local a2 = a:FindFirstChild("Knob2")
-                                                a:FindFirstChild("Events"):FindFirstChild("Toggle"):FireServer(a1, a2)
-                                          end
-                                    end
-                              end
-                        end
-                  end
-            end
-      end)
-end
-
-function nobarriersL(value)
-      function disableTouchAndQuery(part)
-            if part:IsA("BasePart") then
-                  part.CanTouch = value
-                  part.CanQuery = value
-            end
-      end
-
-      function findAndDisableParts()
-            partNames = {"BarbedWire", "RG_Part", "Spike"}
-
-            for _, partName in ipairs(partNames) do
-                  for _, part in pairs(game.Workspace:GetDescendants()) do
-                        if part.Name == partName then
-                              disableTouchAndQuery(part)
-                        end
-                  end
-            end
-      end
-      findAndDisableParts()
-end
-
-function nogrinderL(value)
-      function disableTouchAndQuery(part)
-            if part:IsA("BasePart") then
-                  part.CanTouch = value
-                  part.CanQuery = value
-            end
-      end
-
-      function findAndDisableParts()
-            partNames = {"FirePart", "Grinder"}
-
-            for _, partName in ipairs(partNames) do
-                  for _, part in pairs(game.Workspace:GetDescendants()) do
-                        if part.Name == partName then
-                              disableTouchAndQuery(part)
-                        end
-                  end
-            end
-      end
-      findAndDisableParts()
-end
 
 local Gui = Instance.new("ScreenGui")
 Gui.Parent = me.PlayerGui
@@ -434,6 +121,8 @@ consoletext.TextColor3 = Color3.new(1, 0, 0)
 consoletext.TextSize = 18
 consoletext.Text = ""
 consoletext.TextWrapped = true
+consoletext.ClipsDescendants = true
+consoletext.RichText = true
 consoletext.TextXAlignment = Enum.TextXAlignment.Left
 consoletext.TextYAlignment = Enum.TextYAlignment.Top
 consoletext.Visible = true
@@ -445,6 +134,7 @@ commands.BackgroundColor3 = Color3.new(0.168627, 0.168627, 0.168627)
 commands.Position = UDim2.new(-0, 0, 1, 0)
 commands.Size = UDim2.new(0, 550, 0, 34)
 commands.ClearTextOnFocus = false
+commands.ClipsDescendants = true
 commands.PlaceholderText = "Console Bar"
 commands.PlaceholderColor3 = Color3.new(0.709804, 0.709804, 0.709804)
 commands.TextSize = 17
@@ -643,7 +333,7 @@ SettingsList.Position = UDim2.new(0.054, 0, 0.789, 0)
 SettingsList.Size = UDim2.new(0, 176, 0, 38)
 SettingsList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 SettingsList.TextScaled = true
-SettingsList.Text = "Settings (soon)"
+SettingsList.Text = "Settings"
 SettingsList.Visible = true
 
 uicsettingsl = Instance.new("UICorner")
@@ -719,6 +409,14 @@ FarmMenu.BackgroundTransparency = 1
 FarmMenu.Position = UDim2.new(0.209, 0, 0.01, 0)
 FarmMenu.Size = UDim2.new(0, 774, 0, 598)
 FarmMenu.Visible = false
+
+local SettingsMenu = Instance.new("Frame")
+SettingsMenu.Parent = Menus
+SettingsMenu.Name = "Settings"
+SettingsMenu.BackgroundTransparency = 1
+SettingsMenu.Position = UDim2.new(0.209, 0, 0.01, 0)
+SettingsMenu.Size = UDim2.new(0, 774, 0, 598)
+SettingsMenu.Visible = false
 
 local Fullbright = Instance.new("TextLabel")
 Fullbright.Parent = WorldMenu
@@ -1483,17 +1181,6 @@ uicnofalldamageturn = Instance.new("UICorner")
 uicnofalldamageturn.Parent = nofalldamageTurn
 uicnofalldamageturn.CornerRadius = UDim.new(8, 8)
 
-local PlayerMenuSoon = Instance.new("TextLabel")
-PlayerMenuSoon.Parent = PlayerMenu
-PlayerMenuSoon.Name = "soon"
-PlayerMenuSoon.BackgroundColor3 = Color3.new(1, 1, 1)
-PlayerMenuSoon.Position = UDim2.new(0.027, 0, 0.704, 0)
-PlayerMenuSoon.Size = UDim2.new(0, 745, 0, 169)
-PlayerMenuSoon.TextScaled = true
-PlayerMenuSoon.TextColor3 = Color3.new(0, 0, 0)
-PlayerMenuSoon.Text = "Soon"
-PlayerMenuSoon.Visible = true
-
 local highlight = Instance.new("TextLabel")
 highlight.Parent = VisualMenu
 highlight.Name = "Highlight"
@@ -1545,17 +1232,6 @@ highlightTurn.Visible = true
 uichighlightturn = Instance.new("UICorner")
 uichighlightturn.Parent = highlightTurn
 uichighlightturn.CornerRadius = UDim.new(8, 8)
-
-local VisualSoon = Instance.new("TextLabel")
-VisualSoon.Parent = VisualMenu
-VisualSoon.Name = "Soon"
-VisualSoon.BackgroundColor3 = Color3.new(1, 1, 1)
-VisualSoon.Position = UDim2.new(0.037, 0, 0.518, 0)
-VisualSoon.Size = UDim2.new(0, 715, 0, 250)
-VisualSoon.TextScaled = true
-VisualSoon.TextColor3 = Color3.new(0, 0, 0)
-VisualSoon.Text = "Soon"
-VisualSoon.Visible = true
 
 local Aimbot = Instance.new("TextLabel")
 Aimbot.Parent = MainMenu
@@ -1713,20 +1389,269 @@ uiclockpickturn = Instance.new("UICorner")
 uiclockpickturn.Parent = lockpickTrun
 uiclockpickturn.CornerRadius = UDim.new(8, 8)
 
+function lockpickL()
+      return nil
+end
+
+function fastpickupL()
+      local proximityPrompts = {}
+
+      workspace.DescendantAdded:Connect(function(item)
+            if item:IsA("ProximityPrompt") then
+                  proximityPrompts[item] = {
+                        originalDuration = item.HoldDuration
+                  }
+            end
+      end)
+
+      run.RenderStepped:Connect(function()
+            for prompt, info in pairs(proximityPrompts) do
+                  if functions.fast_pickupF then
+                        prompt.HoldDuration = 0
+                  end
+            end
+      end)
+end
+
+function highlightL()
+      local function add(character)
+            if not character:FindFirstChild("Highlight") then
+                  local highlight = Instance.new("Highlight")
+                  highlight.Adornee = character
+                  highlight.FillTransparency = 1
+                  highlight.Parent = character
+            end
+      end
+
+      local function remove(character)
+            local highlight = character:FindFirstChild("Highlight")
+            if highlight then
+                  highlight:Destroy()
+            end
+      end
+
+      local function isview(character)
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                  local Noscreen, Inscreen = camera:WorldToScreenPoint(humanoidRootPart.Position)
+                  return Inscreen
+            end
+            return false
+      end
+
+      local function update()
+            local Players = plrs:GetPlayers()
+            for _, plr in ipairs(Players) do
+                  if plr ~= me then
+                        local char = plr.Character
+                        if char then
+                              if functions.highlightF then
+                                    if isview(char) then
+                                          add(char)
+                                    else
+                                          remove(char)
+                                    end
+                              end
+                        end
+                  end
+            end
+      end
+      run.RenderStepped:Connect(update)
+end
+
+function aimbotL()
+      local aimpart = "Head"
+      local target = nil
+      local radius = 150
+      local pressed = false
+      local aimtarget
+      local canusing = false
+      local FirstPerson = true
+      local velocity = true
+      local predict = 13
+      local offset = Vector3.new(0, 0.4, 0)
+
+      remotes.circle = Drawing.new("Circle")
+      remotes.circle.Color = Color3.fromRGB(255, 0, 0)
+      remotes.circle.Thickness = 2
+      remotes.circle.NumSides = 50
+      remotes.circle.Radius = radius
+      remotes.circle.Filled = false
+      remotes.circle.Visible = true
+
+      local function getClosestTarget()
+            local closest, closestDist = nil, radius
+            for _, player in pairs(plrs:GetPlayers()) do
+                  if player ~= me and player.Character and player.Character:FindFirstChild(aimpart) then
+                        local pos, onScreen = camera:WorldToViewportPoint(player.Character[aimpart].Position)
+                        if onScreen then
+                              local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(input:GetMouseLocation().X, input:GetMouseLocation().Y)).Magnitude
+                              if distance < closestDist then
+                                    closestDist = distance
+                                    closest = player
+                              end
+                        end
+                  end
+            end
+            return closest
+      end
+      remotes.circle_pos = run.RenderStepped:Connect(function()
+            remotes.circle.Position = Vector2.new(input:GetMouseLocation().X, input:GetMouseLocation().Y)
+      end)
+      
+      input.InputBegan:Connect(function(key)
+            if not input:GetFocusedTextBox() then
+                  if key.UserInputType == Enum.UserInputType.MouseButton2 then
+                        pressed = true
+                        aimtarget = getClosestTarget()
+                  end
+            end
+      end)
+      input.InputEnded:Connect(function(key)
+            if not input:GetFocusedTextBox() then
+                  if key.UserInputType == Enum.UserInputType.MouseButton2 then
+                        pressed = false
+                        aimtarget = nil
+                  end
+            end
+      end)
+      run.RenderStepped:Connect(function()
+            if FirstPerson then
+                  local magnitude = (camera.Focus.p - camera.CFrame.p).Magnitude
+                  canusing = magnitude <= 1.5
+            end
+            if functions.aimbotF and pressed and aimtarget and aimtarget.Character then
+                  local head = aimtarget.Character:FindFirstChild(aimpart)
+                  local humanoid = aimtarget.Character:FindFirstChild("Humanoid")
+
+                  if head and humanoid and humanoid.Health > 0 then
+                        local targetPosition = head.Position + offset
+                        if velocity then
+                              targetPosition = targetPosition + head.Velocity / predict
+                        end
+                        camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.p, targetPosition), 0.9)
+                  end
+            end
+      end)
+end
+
+function infstaminaL()
+      local oldStamina
+      oldStamina =
+            hookfunction(
+                  getupvalue(getrenv()._G.S_Take, 2),
+                  function(v1, ...)
+                        if (functions.infstaminaF) then 
+                              v1 = 0
+                        end
+                        return oldStamina(v1, ...)
+                  end
+            )
+end
+
+function fullbrightL(value)
+      light.ExposureCompensation = value
+end
+
+function open_doorsL()
+      remotes.open_doorsRun = run.RenderStepped:Connect(function()
+            for _, i in pairs(game.Workspace:WaitForChild("Map").Doors:GetChildren()) do
+                  if (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - i:FindFirstChild("DoorBase").Position).Magnitude <= 20 then
+                        if i:FindFirstChild("Values"):FindFirstChild("Locked").Value == true then
+                              i:FindFirstChild("Events"):FindFirstChild("Toggle"):FireServer("Unlock", i.Lock)
+                              local b1 = "Open"
+                              local b2 = i:FindFirstChild("Knob2")
+                              i:FindFirstChild("Events"):FindFirstChild("Toggle"):FireServer(b1, b2)
+                        else
+                              for _, a in pairs(game.Workspace:WaitForChild("Map").Doors:GetChildren()) do
+                                    if (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - a:FindFirstChild("DoorBase").Position).Magnitude <= 20 then
+                                          local opened = a:FindFirstChild("Values"):FindFirstChild("Open")
+                                          if opened and opened.Value == false then
+                                                local a1 = "Open"
+                                                local a2 = a:FindFirstChild("Knob2")
+                                                a:FindFirstChild("Events"):FindFirstChild("Toggle"):FireServer(a1, a2)
+                                          end
+                                    end
+                              end
+                        end
+                  end
+            end
+      end)
+end
+
+function nobarriersL(value)
+      function disableTouchAndQuery(part)
+            if part:IsA("BasePart") then
+                  part.CanTouch = value
+                  part.CanQuery = value
+            end
+      end
+
+      function findAndDisableParts()
+            partNames = {"BarbedWire", "RG_Part", "Spike"}
+
+            for _, partName in ipairs(partNames) do
+                  for _, part in pairs(game.Workspace:GetDescendants()) do
+                        if part.Name == partName then
+                              disableTouchAndQuery(part)
+                        end
+                  end
+            end
+      end
+      findAndDisableParts()
+end
+
+function nogrinderL(value)
+      function disableTouchAndQuery(part)
+            if part:IsA("BasePart") then
+                  part.CanTouch = value
+                  part.CanQuery = value
+            end
+      end
+
+      function findAndDisableParts()
+            partNames = {"FirePart", "Grinder"}
+
+            for _, partName in ipairs(partNames) do
+                  for _, part in pairs(game.Workspace:GetDescendants()) do
+                        if part.Name == partName then
+                              disableTouchAndQuery(part)
+                        end
+                  end
+            end
+      end
+      findAndDisableParts()
+end
+
 local stroke = 1
 
-function ConsoleText(text)
+function ConsoleText(text, typeF)
       if stroke > 20 then
             consoletext.Text = ""
             stroke = 1
       end
       
-      if consoletext.Text == "" then
-            consoletext.Text = stroke..".  "..text
+      local strokeColor = '<font color="rgb(255, 255, 255)">'..stroke..".  "..'</font>'
+      local errorColor = '<font color="rgb(255, 0, 0)">'..text..'</font>'
+      local succesColor = '<font color="rgb(0, 255, 0)">'..text..'</font>'
+      
+      if consoletext.Text == "" and typeF == "error" then
+            consoletext.Text = strokeColor..errorColor
             stroke += 1
-      else
-            consoletext.Text = consoletext.Text.."\n"..stroke..".  "..text
+      elseif consoletext.Text ~= "" and typeF == "error" then
+            consoletext.Text = consoletext.Text.."\n"..strokeColor..errorColor
             stroke += 1
+      end
+      if consoletext.Text == "" and typeF == "succes" then
+            consoletext.Text = strokeColor..succesColor
+            stroke += 1
+      elseif consoletext.Text ~= "" and typeF == "succes" then
+            consoletext.Text = consoletext.Text.."\n"..strokeColor..succesColor
+            stroke += 1
+      end
+      if text == "" then
+            consoletext.Text = ""
+            stroke = 1
       end
 end
 
@@ -1771,6 +1696,15 @@ FarmList.MouseButton1Click:Connect(function()
             if a:IsA("Frame") and a ~= FarmMenu then
                   a.Visible = false
                   FarmMenu.Visible = true
+            end
+      end
+end)
+
+SettingsList.MouseButton1Click:Connect(function()
+      for _, a in pairs(Menus:GetChildren()) do
+            if a:IsA("Frame") and a ~= SettingsMenu then
+                  a.Visible = false
+                  SettingsMenu.Visible = true
             end
       end
 end)
@@ -2009,7 +1943,7 @@ infstaminaTurn.MouseButton1Click:Connect(function()
                   infstaminaL()
             end)
             if not succ then
-                  ConsoleText("Patched or your exploit not support")
+                  ConsoleText("Patched or your exploit not support", "error")
             end
       elseif functions.infstaminaF == true then
             functions.infstaminaF = false
@@ -2040,6 +1974,10 @@ aimbotTurn.MouseButton1Click:Connect(function()
             aimbotanim2.Completed:Connect(function()
                   aimbotTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
+            remotes.circle:Destroy()
+            remotes.circle = nil
+            remotes.circle_pos:Disconnect()
+            remotes.circle_pos = nil
       end
 end)
 
@@ -2094,13 +2032,13 @@ commands.FocusLost:Connect(function()
                   if commandFunc then
                         commandFunc()
                   else
-                        ConsoleText("Command not found!")
+                        ConsoleText("Command not found!", "error")
                   end
             end
             commands.Text = ""
       end)
       if not succ then
-            ConsoleText("Error: "..err)
+            ConsoleText("Error: function not support for your exploit", "error")
             commands.Text = ""
       end
 end)
