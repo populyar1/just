@@ -1524,7 +1524,7 @@ function aimbotL()
                   local head = aimtarget.Character:FindFirstChild(aimpart)
                   local humanoid = aimtarget.Character:FindFirstChild("Humanoid")
 
-                  if head and humanoid and humanoid.Health > 0 then
+                  if head and humanoid and humanoid.Health > 0 and canusing then
                         local targetPosition = head.Position + offset
                         if velocity then
                               targetPosition = targetPosition + head.Velocity / predict
