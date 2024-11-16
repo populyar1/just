@@ -28,7 +28,7 @@ end)
 event:FireServer(true)
 
 local menu = me.PlayerGui:WaitForChild("Scripts")
-local button = menu.Menu.ScrollingFrame.Script2
+local button = menu.Menu.ScrollingFrame.CriminalityGuiV2.GuiV2
 
 button.MouseButton1Click:Connect(function()
       Verified = true
