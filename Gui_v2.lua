@@ -37,7 +37,8 @@ local functions = {
       highlightF = false;
       aimbotF = false;
       fast_pickupF = false;
-      lockpickF = nil;
+      lockpickF = false;
+      atmF = false;
 }
 
 local remotes = {
@@ -1389,8 +1390,79 @@ uiclockpickturn = Instance.new("UICorner")
 uiclockpickturn.Parent = lockpickTrun
 uiclockpickturn.CornerRadius = UDim.new(8, 8)
 
+local ATM = Instance.new("TextLabel")
+ATM.Parent = FarmMenu
+ATM.Name = "ATM"
+ATM.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+ATM.Position = UDim2.new(0.016, 0, 0.099, 0)
+ATM.Size = UDim2.new(0, 194, 0, 32)
+ATM.TextScaled = true
+ATM.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+ATM.Text = "ATM"
+ATM.Visible = true
+
+local uicatm = Instance.new("UICorner")
+uicatm.Parent = ATM
+uicatm.CornerRadius = UDim.new(0, 8)
+
+local atmHow = Instance.new("ImageLabel")
+atmHow.Parent = ATM
+atmHow.Name = "how"
+atmHow.Position = UDim2.new(1.077, 0, 0, 0)
+atmHow.Size = UDim2.new(0, 32, 0, 32)
+atmHow.Image = "rbxassetid://75772970732380"
+atmHow.Visible = true
+
+local uicatmhow = Instance.new("UICorner")
+uicatmhow.Parent = atmHow
+uicatmhow.CornerRadius = UDim.new(8, 8)
+
+local atmControl = Instance.new("Frame")
+atmControl.Parent = ATM
+atmControl.Name = "Control"
+atmControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+atmControl.Position = UDim2.new(1.309, 0, 0, 0)
+atmControl.Size = UDim2.new(0, 58, 0, 32)
+atmControl.Visible = true
+
+local uicatmcontrol = Instance.new("UICorner")
+uicatmcontrol.Parent = atmControl
+uicatmcontrol.CornerRadius = UDim.new(8, 8)
+
+local atmTurn = Instance.new("TextButton")
+atmTurn.Parent = atmControl
+atmTurn.Name = "turn"
+atmTurn.BackgroundColor3 = Color3.new(1, 0, 0)
+atmTurn.Position = UDim2.new(0, 0, 0, 0)
+atmTurn.Size = UDim2.new(0, 35, 0, 32)
+atmTurn.Text = ""
+atmTurn.Visible = true
+
+local uicatmturn = Instance.new("UICorner")
+uicatmturn.Parent = atmTurn
+uicatmturn.CornerRadius = UDim.new(8, 8)
+
 function lockpickL()
-      return nil
+      function lockpick(gui)
+            for _, a in pairs(gui:GetDescendants()) do
+                  if a:IsA("ImageLabel") and a.Name == "Bar" then
+                        local oldsize = a.Size
+                        run.RenderStepped:Connect(function()
+                              if functions.lockpickF then
+                                    a.Size = UDim2.new(0, 280, 0, 280)
+                              else
+                                    a.Size = oldsize
+                              end
+                        end)
+                  end
+            end
+      end
+      
+      local gui = me.PlayerGui:FindFirstChild("LockpickGUI") or me.PlayerGui:WaitForChild("LockpickGUI")
+
+      if gui then
+            lockpick(gui)
+      end
 end
 
 function fastpickupL()
@@ -1447,8 +1519,10 @@ function highlightL()
                         if char then
                               if functions.highlightF then
                                     if isview(char) then
+                                          task.wait()
                                           add(char)
                                     else
+                                          task.wait()
                                           remove(char)
                                     end
                               end
@@ -1530,6 +1604,31 @@ function aimbotL()
                               targetPosition = targetPosition + head.Velocity / predict
                         end
                         camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.p, targetPosition), 0.9)
+                  end
+            end
+      end)
+end
+
+function atmL()
+      function GetATM(Studs)
+            local Part;
+            for _, v in ipairs(game:GetService("Workspace").Map.ATMz:GetChildren()) do
+                  if v:FindFirstChild("MainPart") then
+                        local Distance = (me.Character.HumanoidRootPart.Position - v:FindFirstChild("MainPart").Position).Magnitude
+                        if Distance < Studs then
+                              Studs = Distance
+                              Part = v:FindFirstChild("MainPart")
+                        end
+                  end
+            end
+            return Part
+      end
+      
+      run.RenderStepped:Connect(function()
+            if game:GetService("ReplicatedStorage").PlayerbaseData2[game:GetService("Players").LocalPlayer.Name].NextAllowance.Value == 0 then
+                  local ATM = GetATM()
+                  if functions.atmF then
+                        game:GetService("ReplicatedStorage").Events.CLMZALOW:InvokeServer(ATM)
                   end
             end
       end)
@@ -1965,7 +2064,12 @@ aimbotTurn.MouseButton1Click:Connect(function()
             aimbotanim1.Completed:Connect(function()
                   aimbotTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
             end)
-            aimbotL()
+            local succ, err = pcall(function()
+                  aimbotL()
+            end)
+            if not succ then
+                  ConsoleText("Patched or your exploit not support", "error")
+            end
       elseif functions.aimbotF == true then
             functions.aimbotF = false
             aimbotinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
@@ -2019,6 +2123,32 @@ lockpickTrun.MouseButton1Click:Connect(function()
             lockpickanim2:Play()
             lockpickanim2.Completed:Connect(function()
                   lockpickTrun.BackgroundColor3 = Color3.new(1, 0, 0)
+            end)
+      end
+end)
+
+atmTurn.MouseButton1Click:Connect(function()
+      if functions.atmF == false then
+            functions.atmF = true
+            atminfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            atmanim1 = tween:Create(atmTurn, atminfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            atmanim1:Play()
+            atmanim1.Completed:Connect(function()
+                  atmTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+            end)
+            local succ, err = pcall(function()
+                  atmL(math.huge)
+            end)
+            if not succ then
+                  ConsoleText("Patched or your exploit not support", "error")
+            end
+      elseif functions.atmF == true then
+            functions.atmF = false
+            atminfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            atmanim2 = tween:Create(atmTurn, atminfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            atmanim2:Play()
+            atmanim2.Completed:Connect(function()
+                  atmTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
       end
 end)
@@ -2095,6 +2225,10 @@ input.InputBegan:Connect(function(key)
                   dragg.Visible = true
             end
       end
+end)
+
+me.OnTeleport:Connect(function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/key.lua"))()
 end)
 
 cfg1 = {
