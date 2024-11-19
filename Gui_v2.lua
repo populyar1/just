@@ -7,6 +7,8 @@ local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
 
+local loadscript = true
+
 local cmds = {"leave", "reset", "clear"}
 
 local Commands = {
@@ -2228,7 +2230,13 @@ input.InputBegan:Connect(function(key)
 end)
 
 me.OnTeleport:Connect(function()
-      loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/key.lua"))()
+      if loadscript == true then
+            loadscript = false
+            queue_on_teleport([[
+                  repeat wait() until game:IsLoaded()
+                  loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/loader.lua"))()
+            ]])
+      end
 end)
 
 cfg1 = {
