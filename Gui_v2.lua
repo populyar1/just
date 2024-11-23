@@ -9,22 +9,7 @@ local camera = game.Workspace.CurrentCamera
 
 local loadscript = true
 
-local cmds = {"leave", "reset", "clear"}
-
-local Commands = {
-      leave = function()
-            game:Shutdown()
-      end,
-      reset = function()
-            me.Character.Humanoid.Health = 0
-      end,
-      cmds = function()
-            ConsoleText(table.concat(cmds, ", "), "succes")
-      end,
-      clear = function()
-            ConsoleText("")
-      end,
-}
+local cmds = {"leave", "reset", "clear", "close"}
 
 local functions = {
       FullbrightF = false;
@@ -57,7 +42,7 @@ ChatFrame.ChatChannelParentFrame.Visible = true
 ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = game.CoreGui
+Gui.Parent = me.PlayerGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -1444,18 +1429,40 @@ local uicatmturn = Instance.new("UICorner")
 uicatmturn.Parent = atmTurn
 uicatmturn.CornerRadius = UDim.new(8, 8)
 
+local Commands = {
+      leave = function()
+            game:Shutdown()
+      end,
+      reset = function()
+            me.Character.Humanoid.Health = 0
+      end,
+      cmds = function()
+            ConsoleText(table.concat(cmds, ", "), "succes")
+      end,
+      clear = function()
+            ConsoleText("")
+      end,
+      close = function()
+            Gui:Destroy()
+      end,
+}
+
 function lockpickL()
       function lockpick(gui)
             for _, a in pairs(gui:GetDescendants()) do
                   if a:IsA("ImageLabel") and a.Name == "Bar" then
-                        local oldsize = a.Size
-                        run.RenderStepped:Connect(function()
-                              if functions.lockpickF then
-                                    a.Size = UDim2.new(0, 280, 0, 280)
-                              else
-                                    a.Size = oldsize
-                              end
-                        end)
+                        if a.Parent.Name ~= "Attempts" then
+                              local oldsize = a.Size
+                              run.RenderStepped:Connect(function()
+                                    if functions.lockpickF then
+                                          task.wait()
+                                          a.Size = UDim2.new(0, 280, 0, 280)
+                                    else
+                                          task.wait()
+                                          a.Size = oldsize
+                                    end
+                              end)
+                        end
                   end
             end
       end
