@@ -14,7 +14,6 @@ sound.Volume = 3
 game:GetService("StarterGui"):SetCore("SendNotification", {
       Title = "Gui v2 is loading...",
       Text = "Please wait!",
-      Duration = 15
 })
 
 repeat wait() until game:IsLoaded()
