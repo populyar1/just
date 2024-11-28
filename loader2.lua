@@ -10,6 +10,13 @@ sound.Parent = game:GetService("SoundService")
 sound.SoundId = "rbxassetid://"..sound_ids[random_soundids]
 sound.Volume = 3
 
+
+game:GetService("StarterGui"):SetCore("SendNotification", {
+      Title = "Gui v2 is loading...",
+      Text = "Please wait!",
+      Duration = 15
+})
+
 repeat wait() until game:IsLoaded()
 game:GetService("StarterGui"):SetCore("SendNotification", {
       Title = "Gui v2 is ready!",
