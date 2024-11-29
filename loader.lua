@@ -32,6 +32,7 @@ game.Players.LocalPlayer.OnTeleport:Connect(function()
             local load = true
             if load == true then
                 load = false
+                _G.VERIFIED = true
                 loadstring(game:HttpGet('https://raw.githubusercontent.com/populyar1/just/refs/heads/main/Gui_v2.lua'))()
             else
                 print("Please reload Gui!")
