@@ -7,6 +7,13 @@ local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
 
+_G.VERIFIED = true
+
+wait()
+if _G.VERIFIED == false then
+      me:Kick("Script cracked!!!")
+end
+
 local loadscript = true
 
 local cmds = {"leave", "reset", "clear", "close"}
@@ -42,7 +49,7 @@ ChatFrame.ChatChannelParentFrame.Visible = true
 ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = me.PlayerGui
+Gui.Parent = game.CoreGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -1455,23 +1462,27 @@ function lockpickL()
       function lockpick(gui)
             for _, a in pairs(gui:GetDescendants()) do
                   if a:IsA("ImageLabel") and a.Name == "Bar" then
-                        local oldsize = a.Size
-                        run.RenderStepped:Connect(function()
-                              if functions.lockpickF then
-                                    a.Size = UDim2.new(0, 280, 0, 280)
-                              else
-                                    a.Size = oldsize
-                              end
-                        end)
+                        if a.Parent.Name ~= "Attempts" then
+                              local oldsize = a.Size
+                              run.RenderStepped:Connect(function()
+                                    if functions.lockpickF then
+                                          task.wait()
+                                          a.Size = UDim2.new(0, 280, 0, 280)
+                                    else
+                                          task.wait()
+                                          a.Size = oldsize
+                                    end
+                              end)
+                        end
                   end
             end
       end
-      
-      local gui = me.PlayerGui:FindFirstChild("LockpickGUI") or me.PlayerGui:WaitForChild("LockpickGUI")
 
-      if gui then
-            lockpick(gui)
-      end
+      me.PlayerGui.ChildAdded:Connect(function(gui)
+            if gui:IsA("ScreenGui") and gui.Name == "LockpickGUI" then
+                  lockpick(gui)
+            end
+      end)
 end
 
 function fastpickupL()
@@ -1583,6 +1594,7 @@ function aimbotL(value)
       remotes.circle.Radius = radius
       remotes.circle.Filled = false
       remotes.circle.Visible = true
+      remotes.circle.Position = UDim2.new(0.42, 0, 0.359, 0)
 
       local function getClosestTarget()
             local closest, closestDist = nil, radius
@@ -1600,8 +1612,6 @@ function aimbotL(value)
             end
             return closest
       end
-      
-      remotes.circle.Position = UDim2.new(0.464, 0, 0.431, 0)
       
       button.MouseButton1Click:Connect(function()
             if pressed == true then
@@ -1931,13 +1941,13 @@ fovSlider.MouseButton1Down:Connect(function()
 end)
 
 input.InputEnded:Connect(function(check)
-      if check.UserInputType == Enum.UserInputType.MouseButton1 then
+      if check.UserInputType == Enum.UserInputType.Touch or Enum.UserInputType.MouseButton1 then
             remotes.fovslider_dragging = false
       end
 end)
 
 input.InputChanged:Connect(function(check2)
-      if remotes.fovslider_dragging and check2.UserInputType == Enum.UserInputType.MouseMovement then
+      if remotes.fovslider_dragging and check2.UserInputType == Enum.UserInputType.Touch or Enum.UserInputType.MouseMovement then
             mousepos = input:GetMouseLocation().X
             newsize = math.clamp(mousepos - fovControl.AbsolutePosition.X, min1, max1)
             btnSizeScale = newsize / fovControl.AbsoluteSize.X
@@ -1966,13 +1976,13 @@ gravitySlider.MouseButton1Down:Connect(function()
 end)
 
 input.InputEnded:Connect(function(check3)
-      if check3.UserInputType == Enum.UserInputType.MouseButton1 then
+      if check3.UserInputType == Enum.UserInputType.Touch then
             remotes.gravityslider_dragging = false
       end
 end)
 
 input.InputChanged:Connect(function(check4)
-      if remotes.gravityslider_dragging and check4.UserInputType == Enum.UserInputType.MouseMovement then
+      if remotes.gravityslider_dragging and check4.UserInputType == Enum.UserInputType.Touch or Enum.UserInputType.MouseMovement then
             mousepos = input:GetMouseLocation().X
             newsize = math.clamp(mousepos - gravityControl.AbsolutePosition.X, min2, max2)
             btnSizeScale = newsize / gravityControl.AbsoluteSize.X
@@ -2199,37 +2209,46 @@ commands.FocusLost:Connect(function()
 end)
 
 local dragging = false
-local dragInput
-local dragStart
-local startPos
+local dragInput = nil
+local dragStart = nil
+local startPos = nil
 
-local function update(input1)
-      local delta = input1.Position - dragStart
-      dragg.Position = UDim2.new(
+function update(inputObject)
+      local delta = inputObject.Position - dragStart
+      local newPosition = UDim2.new(
             startPos.X.Scale,
             startPos.X.Offset + delta.X,
             startPos.Y.Scale,
             startPos.Y.Offset + delta.Y
       )
+
+      local anim1 = tween:Create(dragg, TweenInfo.new(0.1), {Position = newPosition})
+      anim1:Play()
 end
 
-dragg.InputBegan:Connect(function(input1)
-      if input1.UserInputType == Enum.UserInputType.Touch then
+dragg.InputBegan:Connect(function(inputObject)
+      if inputObject.UserInputType == Enum.UserInputType.MouseButton1 or inputObject.UserInputType == Enum.UserInputType.Touch then
             dragging = true
-            dragStart = input1.Position
-            startPos = mainframe.Position
+            dragStart = inputObject.Position
+            startPos = dragg.Position
 
-            input1.Changed:Connect(function()
-                  if input1.UserInputState == Enum.UserInputState.End then
+            inputObject.Changed:Connect(function()
+                  if inputObject.UserInputState == Enum.UserInputState.End then
                         dragging = false
                   end
             end)
       end
 end)
 
-dragg.InputChanged:Connect(function(input1)
-      if input1.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input1
+dragg.InputChanged:Connect(function(inputObject)
+      if inputObject.UserInputType == Enum.UserInputType.MouseMovement or inputObject.UserInputType == Enum.UserInputType.Touch then
+            dragInput = inputObject
+      end
+end)
+
+input.InputChanged:Connect(function(inputObject)
+      if dragging and inputObject == dragInput then
+            update(inputObject)
       end
 end)
 
@@ -2249,15 +2268,13 @@ me.Chatted:Connect(function(msg)
       end
 end)
 
-me.OnTeleport:Connect(function()
-      if loadscript == true then
-            loadscript = false
-            queue_on_teleport([[
-                  repeat wait() until game:IsLoaded()
-                  loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/loader.lua"))()
-            ]])
-      end
-end)
+if loadscript == true then
+      loadscript = false
+      queue_on_teleport([[
+            repeat wait() until game:IsLoaded()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/loader2.lua"))()
+      ]])
+end
 
 cfg1 = {
       Rotation = 360
