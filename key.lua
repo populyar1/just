@@ -1,7 +1,7 @@
-local copy = game.Players.LocalPlayer.PlayerGui:WaitForChild("Verification").Verefy.VerefyButton.Code.CopyCode
-local verifybutton = game.Players.LocalPlayer.PlayerGui:WaitForChild("Verification").Verefy.VerefyButton
-local event = game.Players.LocalPlayer.PlayerGui:WaitForChild("Verification").Verefy.Event
-local code = game.Players.LocalPlayer.PlayerGui:WaitForChild("Verification").Verefy.code
+local copy = game.Players.LocalPlayer.PlayerGui:WaitForChild("verify").Verify.VerefyButton.Code.CopyCode
+local verifybutton = game.Players.LocalPlayer.PlayerGui:WaitForChild("verify").Verify.VerefyButton
+local event = game.Players.LocalPlayer.PlayerGui:WaitForChild("verify").Verify.Event
+local code = game.Players.LocalPlayer.PlayerGui:WaitForChild("verify").Verify.code
 local me = game:GetService("Players").LocalPlayer
 
 local reallink = false
