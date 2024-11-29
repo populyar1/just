@@ -9,11 +9,9 @@ local camera = game.Workspace.CurrentCamera
 
 _G.VERIFIED = false
 
-wait()
-if _G.VERIFIED == false then
+repeat wait() until game:IsLoaded()
+if not _G.VERIFIED then
       me:Kick("Script cracked!!!")
-else
-      return nil
 end
 
 local loadscript = true
