@@ -7,6 +7,15 @@ local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
 
+_G.VERIFIED = false
+
+wait()
+if _G.VERIFIED == false then
+      me:Kick("Script cracked!!!")
+else
+      return nil
+end
+
 local loadscript = true
 
 local cmds = {"leave", "reset", "clear", "close"}
@@ -42,7 +51,7 @@ ChatFrame.ChatChannelParentFrame.Visible = true
 ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = me.PlayerGui
+Gui.Parent = game.CoreGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -1467,11 +1476,11 @@ function lockpickL()
             end
       end
       
-      local gui = me.PlayerGui:FindFirstChild("LockpickGUI") or me.PlayerGui:WaitForChild("LockpickGUI")
-
-      if gui then
-            lockpick(gui)
-      end
+      me.PlayerGui.ChildAdded:Connect(function(gui)
+            if gui:IsA("ScreenGui") and gui.Name == "LockpickGUI" then
+                  lockpick(gui)
+            end
+      end)
 end
 
 function fastpickupL()
@@ -2236,15 +2245,13 @@ input.InputBegan:Connect(function(key)
       end
 end)
 
-me.OnTeleport:Connect(function()
-      if loadscript == true then
-            loadscript = false
-            queue_on_teleport([[
-                  repeat wait() until game:IsLoaded()
-                  loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/loader.lua"))()
-            ]])
-      end
-end)
+if loadscript == true then
+      loadscript = false
+      queue_on_teleport([[
+            repeat wait() until game:IsLoaded()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/loader.lua"))()
+      ]])
+end
 
 cfg1 = {
       Rotation = 360
