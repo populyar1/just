@@ -37,12 +37,12 @@ local remotes = {
       circle_pos = nil;
 }
 
-local ChatFrame = me.PlayerGui.Chat.Frame
+--[[local ChatFrame = me.PlayerGui.Chat.Frame
 ChatFrame.ChatChannelParentFrame.Visible = true
-ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
+ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)]]
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = game.CoreGui
+Gui.Parent = me.PlayerGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -1923,8 +1923,8 @@ nogrinderTurn.MouseButton1Click:Connect(function()
       end
 end)
 
-min1 = 0.08 * fovControl.AbsoluteSize.X
-max1 = fovControl.AbsoluteSize.X
+local min1 = 0.08 * fovControl.AbsoluteSize.X
+local max1 = fovControl.AbsoluteSize.X
 
 local minfov = 30
 local maxfov = 120
@@ -1934,13 +1934,13 @@ fovSlider.MouseButton1Down:Connect(function()
 end)
 
 input.InputEnded:Connect(function(check)
-      if check.UserInputType == Enum.UserInputType.Touch or Enum.UserInputType.MouseButton1 then
+      if check.UserInputType == Enum.UserInputType.Touch or check.UserInputType == Enum.UserInputType.MouseButton1 then
             remotes.fovslider_dragging = false
       end
 end)
 
 input.InputChanged:Connect(function(check2)
-      if remotes.fovslider_dragging and check2.UserInputType == Enum.UserInputType.Touch or Enum.UserInputType.MouseMovement then
+      if remotes.fovslider_dragging and (check2.UserInputType == Enum.UserInputType.Touch or Enum.UserInputType.MouseMovement) then
             mousepos = input:GetMouseLocation().X
             newsize = math.clamp(mousepos - fovControl.AbsolutePosition.X, min1, max1)
             btnSizeScale = newsize / fovControl.AbsoluteSize.X
@@ -1969,18 +1969,18 @@ gravitySlider.MouseButton1Down:Connect(function()
 end)
 
 input.InputEnded:Connect(function(check3)
-      if check3.UserInputType == Enum.UserInputType.Touch then
+      if check3.UserInputType == Enum.UserInputType.Touch or check3.UserInputType == Enum.UserInputType.MouseButton1 then
             remotes.gravityslider_dragging = false
       end
 end)
 
 input.InputChanged:Connect(function(check4)
-      if remotes.gravityslider_dragging and check4.UserInputType == Enum.UserInputType.Touch or Enum.UserInputType.MouseMovement then
-            mousepos = input:GetMouseLocation().X
-            newsize = math.clamp(mousepos - gravityControl.AbsolutePosition.X, min2, max2)
-            btnSizeScale = newsize / gravityControl.AbsoluteSize.X
-            gravitySlider.Size = UDim2.new(btnSizeScale, 0, gravitySlider.Size.Y.Scale, gravitySlider.Size.Y.Offset)
-            gravityprogress = (newsize - min2) / (max2 - min2)
+      if remotes.gravityslider_dragging and (check4.UserInputType == Enum.UserInputType.Touch or Enum.UserInputType.MouseMovement) then
+            mousepos1 = input:GetMouseLocation().X
+            newsize1 = math.clamp(mousepos1 - gravityControl.AbsolutePosition.X, min2, max2)
+            btnSizeScale1 = newsize1 / gravityControl.AbsoluteSize.X
+            gravitySlider.Size = UDim2.new(btnSizeScale1, 0, gravitySlider.Size.Y.Scale, gravitySlider.Size.Y.Offset)
+            gravityprogress = (newsize1 - min2) / (max2 - min2)
             Gravity = math.clamp(minGravity + (gravityprogress * (maxGravity - minGravity)), maxGravity, minGravity)
             game.Workspace.Gravity = Gravity
       end
@@ -2252,22 +2252,14 @@ input.InputChanged:Connect(function(input1)
 end)
 
 me.Chatted:Connect(function(msg)
-      if msg:lower() == "menu" then
-            if dragg.Visible == true then
-                  dragg.Visible = false
+      if msg == "menu" then
+            if Gui.Enabled == true then
+                  Gui.Enabled = false
             else
-                  dragg.Visible = true
+                  Gui.Enabled = true
             end
       end
 end)
-
-if loadscript == true then
-      loadscript = false
-      queue_on_teleport([[
-            repeat wait() until game:IsLoaded()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/loader2.lua"))()
-      ]])
-end
 
 cfg1 = {
       Rotation = 360
