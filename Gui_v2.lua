@@ -7,8 +7,6 @@ local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
 
-local loadscript = true
-
 local cmds = {"leave", "reset", "clear", "close"}
 
 local functions = {
@@ -37,12 +35,12 @@ local remotes = {
       circle_pos = nil;
 }
 
-local ChatFrame = me.PlayerGui.Chat.Frame
+local ChatFrame = me.PlayerGui:WaitForChild("Chat").Frame
 ChatFrame.ChatChannelParentFrame.Visible = true
 ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = game.CoreGui
+Gui.Parent = me.PlayerGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -2235,14 +2233,6 @@ input.InputBegan:Connect(function(key)
             end
       end
 end)
-
-if loadscript == true then
-      loadscript = false
-      queue_on_teleport([[
-            repeat wait() until game:IsLoaded()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/loader.lua"))()
-      ]])
-end
 
 cfg1 = {
       Rotation = 360
