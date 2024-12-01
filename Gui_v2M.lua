@@ -7,8 +7,6 @@ local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
 
-local loadscript = true
-
 local cmds = {"leave", "reset", "clear", "close"}
 
 local functions = {
