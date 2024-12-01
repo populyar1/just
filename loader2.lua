@@ -5,18 +5,12 @@ local random_soundids = math.random(0, #sound_ids)
 
 local loadscript = true
 
+task.wait()
 local sound = Instance.new("Sound")
 sound.Parent = game:GetService("SoundService")
 sound.SoundId = "rbxassetid://"..sound_ids[random_soundids]
 sound.Volume = 3
 
-
-game:GetService("StarterGui"):SetCore("SendNotification", {
-      Title = "Gui v2 is loading...",
-      Text = "Please wait!",
-})
-
-repeat wait() until game:IsLoaded()
 game:GetService("StarterGui"):SetCore("SendNotification", {
       Title = "Gui v2 is ready!",
       Icon = "rbxassetid://"..ids[random_ids],
@@ -29,13 +23,11 @@ game.Players.LocalPlayer.OnTeleport:Connect(function()
       if loadscript == true then
             loadscript = false
           queue_on_teleport([[
-            repeat wait() until game:IsLoaded()
             local load = true
             if load == true then
                 load = false
+                _G.VERIFIED = true
                 loadstring(game:HttpGet('https://raw.githubusercontent.com/populyar1/just/refs/heads/main/Gui_v2M.lua'))()
-            else
-                print("Please reload Gui!")
             end
         ]])
       end
