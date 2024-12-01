@@ -35,7 +35,7 @@ local remotes = {
       circle_pos = nil;
 }
 
-local ChatFrame = me.PlayerGui.Chat.Frame
+local ChatFrame = me.PlayerGui:WaitForChild("Chat").Frame
 ChatFrame.ChatChannelParentFrame.Visible = true
 ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
 
