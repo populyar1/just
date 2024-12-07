@@ -1859,10 +1859,10 @@ antiflingTurn.MouseButton1Click:Connect(function()
             antiflinganim1.Completed:Connect(function()
                   antiflingTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
             end)
-            antiflingL(1)
+            antiflingL(false, true)
       elseif functions.AntiFling == true then
             functions.AntiFling = false
-            antiflingL(0)
+            antiflingL(true, false)
             antiflinginfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
             antiflinganim2 = tween:Create(antiflingTurn, antiflinginfo2, {Position = UDim2.new(0, 0, 0, 0)})
       end
