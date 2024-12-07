@@ -1051,18 +1051,6 @@ uicantiflingturn = Instance.new("UICorner")
 uicantiflingturn.Parent = antiflingTurn
 uicantiflingturn.CornerRadius = UDim.new(8, 8)
 
-local antiflingSoon = Instance.new("TextLabel")
-antiflingSoon.Parent = antifling
-antiflingSoon.Name = "soon"
-antiflingSoon.BackgroundTransparency = 1
-antiflingSoon.BackgroundColor3 = Color3.new(1, 1, 1)
-antiflingSoon.Position = UDim2.new(1.656, 0, 0, 0)
-antiflingSoon.Size = UDim2.new(0, 89, 0, 32)
-antiflingSoon.TextScaled = true
-antiflingSoon.TextColor3 = Color3.new(1, 1, 1)
-antiflingSoon.Text = "- soon"
-antiflingSoon.Visible = true
-
 local infstamina = Instance.new("TextLabel")
 infstamina.Parent = PlayerMenu
 infstamina.Name = "infstamina"
@@ -1445,6 +1433,53 @@ local Commands = {
       end,
 }
 
+function antiflingL(value, value2)
+      run.Stepped:Connect(function()
+            for _, a in pairs(plrs:GetPlayers()) do
+                  if a ~= me then
+                        local char = a.Character or a.CharacterAdded:Wait()
+                        if char and char:WaitForChild("HumanoidRootPart") then
+                              for _, obj in pairs(char:GetChildren()) do
+                                    if obj:IsA("BasePart") then
+                                          obj.CanCollide = value
+                                          obj.CustomPhysicalProperties = true
+                                          obj.CustomPhysicalProperties.Density = 100
+                                          char:FindFirstChild("Head").CanCollide = value
+                                          char:FindFirstChild("Head").CustomPhysicalProperties = value2
+                                          char:FindFirstChild("Head").CustomPhysicalProperties.Density = 100
+                                    end
+                              end
+                        end
+                  end
+            end
+            plrs.PlayerAdded:Connect(function(plr)
+                  plr.CharacterAdded:Connect(function(char)
+                        for _, a in pairs(char:GetChildren()) do
+                              if a:IsA("BasePart") then
+                                    a.CanCollide = value
+                                    a.CustomPhysicalProperties = value2
+                                    a.CustomPhysicalProperties.Density = 100
+                                    char:FindFirstChild("Head").CanCollide = value
+                                    char:FindFirstChild("Head").CanTouch = value
+                                    char:FindFirstChild("Head").CustomPhysicalProperties = value2
+                                    char:FindFirstChild("Head").CustomPhysicalProperties.Density = 100
+                              end
+                        end
+                  end)
+            end)
+            local mychar = me.Character or me.CharacterAdded:Wait()
+            if mychar and mychar:WaitForChild("HumanoidRootPart") then
+                  for _, a in pairs(mychar:GetChildren()) do
+                        if a:IsA("BasePart") then
+                              a.CanCollide = false
+                              mychar:FindFirstChild("Head").CanCollide = false
+                              mychar:FindFirstChild("Head").CanTouch = false
+                        end
+                  end
+            end
+      end)
+end
+
 function lockpickL()
       function lockpick(gui)
             for _, a in pairs(gui:GetDescendants()) do
@@ -1812,6 +1847,24 @@ SettingsList.MouseButton1Click:Connect(function()
                   a.Visible = false
                   SettingsMenu.Visible = true
             end
+      end
+end)
+
+antiflingTurn.MouseButton1Click:Connect(function()
+      if functions.AntiFling == false then
+            functions.AntiFling = true
+            antiflinginfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            antiflinganim1 = tween:Create(antiflingTurn, antiflinginfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            antiflinganim1:Play()
+            antiflinganim1.Completed:Connect(function()
+                  antiflingTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+            end)
+            antiflingL(1)
+      elseif functions.AntiFling == true then
+            functions.AntiFling = false
+            antiflingL(0)
+            antiflinginfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            antiflinganim2 = tween:Create(antiflingTurn, antiflinginfo2, {Position = UDim2.new(0, 0, 0, 0)})
       end
 end)
 
