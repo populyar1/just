@@ -6,8 +6,9 @@ local light = game:GetService("Lighting")
 local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
+local sgui = game:GetService("StarterGui")
 
-local cmds = {"leave", "reset", "clear", "close"}
+local cmds = {"leave", "reset", "clear", "close", "reload"}
 
 local functions = {
       FullbrightF = false;
@@ -24,6 +25,8 @@ local functions = {
       fast_pickupF = false;
       lockpickF = false;
       atmF = false;
+      glass_armsF = false;
+      inf_pepperF = false;
 }
 
 local remotes = {
@@ -33,11 +36,21 @@ local remotes = {
       gravityslider_dragging = false;
       circle = nil;
       circle_pos = nil;
+      anti_fling = nil;
 }
 
 local ChatFrame = me.PlayerGui:WaitForChild("Chat").Frame
 ChatFrame.ChatChannelParentFrame.Visible = true
 ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
+
+local mych = me.Character or me.CharacterAdded:Wait()
+if mych then
+      for _, a in pairs(mych:GetChildren()) do
+            if a:IsA("BasePart") then
+                  a.CustomPhysicalProperties = PhysicalProperties.new(100, 1, 1, 1, 1)
+            end
+      end
+end
 
 local Gui = Instance.new("ScreenGui")
 Gui.Parent = me.PlayerGui
@@ -289,7 +302,7 @@ TrollList.Position = UDim2.new(0.054, 0, 0.524, 0)
 TrollList.Size = UDim2.new(0, 176, 0, 38)
 TrollList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 TrollList.TextScaled = true
-TrollList.Text = "Troll (soon)"
+TrollList.Text = "Troll"
 TrollList.Visible = true
 
 uictrolll = Instance.new("UICorner")
@@ -403,6 +416,14 @@ SettingsMenu.BackgroundTransparency = 1
 SettingsMenu.Position = UDim2.new(0.209, 0, 0.01, 0)
 SettingsMenu.Size = UDim2.new(0, 774, 0, 598)
 SettingsMenu.Visible = false
+
+local TrollMenu = Instance.new("Frame")
+TrollMenu.Parent = Menus
+TrollMenu.Name = "Troll"
+TrollMenu.BackgroundTransparency = 1
+TrollMenu.Position = UDim2.new(0.209, 0, 0.01, 0)
+TrollMenu.Size = UDim2.new(0, 774, 0, 598)
+TrollMenu.Visible = false
 
 local Fullbright = Instance.new("TextLabel")
 Fullbright.Parent = WorldMenu
@@ -935,75 +956,63 @@ flySoon.TextColor3 = Color3.new(1, 1, 1)
 flySoon.Text = "- soon"
 flySoon.Visible = true
 
-local GlassBody = Instance.new("TextLabel")
-GlassBody.Parent = PlayerMenu
-GlassBody.Name = "body"
-GlassBody.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-GlassBody.Position = UDim2.new(0.016, 0, 0.359, 0)
-GlassBody.Size = UDim2.new(0, 194, 0, 32)
-GlassBody.TextScaled = true
-GlassBody.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
-GlassBody.Text = "Glass body"
-GlassBody.Visible = true
+local GlassArms = Instance.new("TextLabel")
+GlassArms.Parent = VisualMenu
+GlassArms.Name = "arms"
+GlassArms.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+GlassArms.Position = UDim2.new(0.016, 0, 0.104, 0)
+GlassArms.Size = UDim2.new(0, 194, 0, 32)
+GlassArms.TextScaled = true
+GlassArms.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+GlassArms.Text = "Glass arms"
+GlassArms.Visible = true
 
-uicglassbody = Instance.new("UICorner")
-uicglassbody.Parent = GlassBody
-uicglassbody.CornerRadius = UDim.new(0, 8)
+uicglassarms = Instance.new("UICorner")
+uicglassarms.Parent = GlassArms
+uicglassarms.CornerRadius = UDim.new(0, 8)
 
-local glassbodyHow = Instance.new("ImageLabel")
-glassbodyHow.Parent = GlassBody
-glassbodyHow.Name = "how"
-glassbodyHow.Position = UDim2.new(1.077, 0, 0, 0)
-glassbodyHow.Size = UDim2.new(0, 32, 0, 32)
-glassbodyHow.Image = "rbxassetid://75772970732380"
-glassbodyHow.Visible = true
+local glassarmsHow = Instance.new("ImageLabel")
+glassarmsHow.Parent = GlassArms
+glassarmsHow.Name = "how"
+glassarmsHow.Position = UDim2.new(1.077, 0, 0, 0)
+glassarmsHow.Size = UDim2.new(0, 32, 0, 32)
+glassarmsHow.Image = "rbxassetid://75772970732380"
+glassarmsHow.Visible = true
 
-uicglassbodyHow = Instance.new("UICorner")
-uicglassbodyHow.Parent = glassbodyHow
-uicglassbodyHow.CornerRadius = UDim.new(8, 8)
+uicglassarmsHow = Instance.new("UICorner")
+uicglassarmsHow.Parent = glassarmsHow
+uicglassarmsHow.CornerRadius = UDim.new(8, 8)
 
-local glassbodyControl = Instance.new("Frame")
-glassbodyControl.Parent = GlassBody
-glassbodyControl.Name = "Control"
-glassbodyControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
-glassbodyControl.Position = UDim2.new(1.309, 0, 0, 0)
-glassbodyControl.Size = UDim2.new(0, 58, 0, 32)
-glassbodyControl.Visible = true
+local glassarmsControl = Instance.new("Frame")
+glassarmsControl.Parent = GlassArms
+glassarmsControl.Name = "Control"
+glassarmsControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+glassarmsControl.Position = UDim2.new(1.309, 0, 0, 0)
+glassarmsControl.Size = UDim2.new(0, 58, 0, 32)
+glassarmsControl.Visible = true
 
-uicglassbodyControl = Instance.new("UICorner")
-uicglassbodyControl.Parent = glassbodyControl
-uicglassbodyControl.CornerRadius = UDim.new(8, 8)
+uicglassarmsControl = Instance.new("UICorner")
+uicglassarmsControl.Parent = glassarmsControl
+uicglassarmsControl.CornerRadius = UDim.new(8, 8)
 
-local glassbodyTurn = Instance.new("TextButton")
-glassbodyTurn.Parent = glassbodyControl
-glassbodyTurn.Name = "turn"
-glassbodyTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-glassbodyTurn.Position = UDim2.new(0, 0, 0, 0)
-glassbodyTurn.Size = UDim2.new(0, 35, 0, 32)
-glassbodyTurn.Text = ""
-glassbodyTurn.Visible = true
+local glassarmsTurn = Instance.new("TextButton")
+glassarmsTurn.Parent = glassarmsControl
+glassarmsTurn.Name = "turn"
+glassarmsTurn.BackgroundColor3 = Color3.new(1, 0, 0)
+glassarmsTurn.Position = UDim2.new(0, 0, 0, 0)
+glassarmsTurn.Size = UDim2.new(0, 35, 0, 32)
+glassarmsTurn.Text = ""
+glassarmsTurn.Visible = true
 
-uicglassbodyturn = Instance.new("UICorner")
-uicglassbodyturn.Parent = glassbodyTurn
-uicglassbodyturn.CornerRadius = UDim.new(8, 8)
-
-local glassbodySoon = Instance.new("TextLabel")
-glassbodySoon.Parent = GlassBody
-glassbodySoon.Name = "soon"
-glassbodySoon.BackgroundTransparency = 1
-glassbodySoon.BackgroundColor3 = Color3.new(1, 1, 1)
-glassbodySoon.Position = UDim2.new(1.656, 0, 0, 0)
-glassbodySoon.Size = UDim2.new(0, 89, 0, 32)
-glassbodySoon.TextScaled = true
-glassbodySoon.TextColor3 = Color3.new(1, 1, 1)
-glassbodySoon.Text = "- soon"
-glassbodySoon.Visible = true
+uicglassarmsturn = Instance.new("UICorner")
+uicglassarmsturn.Parent = glassarmsTurn
+uicglassarmsturn.CornerRadius = UDim.new(8, 8)
 
 local antifling = Instance.new("TextLabel")
 antifling.Parent = PlayerMenu
 antifling.Name = "anti-fling"
 antifling.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-antifling.Position = UDim2.new(0.016, 0, 0.446, 0)
+antifling.Position = UDim2.new(0.016, 0, 0.36, 0)
 antifling.Size = UDim2.new(0, 194, 0, 32)
 antifling.TextScaled = true
 antifling.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
@@ -1055,7 +1064,7 @@ local infstamina = Instance.new("TextLabel")
 infstamina.Parent = PlayerMenu
 infstamina.Name = "infstamina"
 infstamina.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-infstamina.Position = UDim2.new(0.016, 0, 0.533, 0)
+infstamina.Position = UDim2.new(0.016, 0, 0.445, 0)
 infstamina.Size = UDim2.new(0, 194, 0, 32)
 infstamina.TextScaled = true
 infstamina.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
@@ -1107,7 +1116,7 @@ local nofalldamage = Instance.new("TextLabel")
 nofalldamage.Parent = PlayerMenu
 nofalldamage.Name = "nofalldamage"
 nofalldamage.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-nofalldamage.Position = UDim2.new(0.016, 0, 0.619, 0)
+nofalldamage.Position = UDim2.new(0.016, 0, 0.527, 0)
 nofalldamage.Size = UDim2.new(0, 194, 0, 32)
 nofalldamage.TextScaled = true
 nofalldamage.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
@@ -1415,6 +1424,58 @@ local uicatmturn = Instance.new("UICorner")
 uicatmturn.Parent = atmTurn
 uicatmturn.CornerRadius = UDim.new(8, 8)
 
+local InfPepper = Instance.new("TextLabel")
+InfPepper.Parent = TrollMenu
+InfPepper.Name = "InfPepper"
+InfPepper.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+InfPepper.Position = UDim2.new(0.016, 0, 0.022, 0)
+InfPepper.Size = UDim2.new(0, 194, 0, 32)
+InfPepper.TextScaled = true
+InfPepper.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+InfPepper.Text = "inf pepper spray"
+InfPepper.Visible = true
+
+local uicinfpepper = Instance.new("UICorner")
+uicinfpepper.Parent = InfPepper
+uicinfpepper.CornerRadius = UDim.new(0, 8)
+
+local infpepperHow = Instance.new("ImageLabel")
+infpepperHow.Parent = InfPepper
+infpepperHow.Name = "how"
+infpepperHow.Position = UDim2.new(1.077, 0, 0, 0)
+infpepperHow.Size = UDim2.new(0, 32, 0, 32)
+infpepperHow.Image = "rbxassetid://75772970732380"
+infpepperHow.Visible = true
+
+local uicinfpepperhow = Instance.new("UICorner")
+uicinfpepperhow.Parent = infpepperHow
+uicinfpepperhow.CornerRadius = UDim.new(8, 8)
+
+local infpepperControl = Instance.new("Frame")
+infpepperControl.Parent = InfPepper
+infpepperControl.Name = "Control"
+infpepperControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+infpepperControl.Position = UDim2.new(1.309, 0, 0, 0)
+infpepperControl.Size = UDim2.new(0, 58, 0, 32)
+infpepperControl.Visible = true
+
+local uicinfpeppercontrol = Instance.new("UICorner")
+uicinfpeppercontrol.Parent = infpepperControl
+uicinfpeppercontrol.CornerRadius = UDim.new(8, 8)
+
+local infpepperTurn = Instance.new("TextButton")
+infpepperTurn.Parent = infpepperControl
+infpepperTurn.Name = "turn"
+infpepperTurn.BackgroundColor3 = Color3.new(1, 0, 0)
+infpepperTurn.Position = UDim2.new(0, 0, 0, 0)
+infpepperTurn.Size = UDim2.new(0, 35, 0, 32)
+infpepperTurn.Text = ""
+infpepperTurn.Visible = true
+
+local uicinfpepperturn = Instance.new("UICorner")
+uicinfpepperturn.Parent = infpepperTurn
+uicinfpepperturn.CornerRadius = UDim.new(8, 8)
+
 local Commands = {
       leave = function()
             game:Shutdown()
@@ -1431,10 +1492,72 @@ local Commands = {
       close = function()
             Gui:Destroy()
       end,
+      reload = function()
+            Gui:Destroy()
+            wait(1)
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/Gui_v2.lua"))()
+      end,
 }
 
-function antiflingL(value, value2)
-      run.Stepped:Connect(function()
+function infpepperL(value)
+      function pepper(obj)
+            if value == true then
+                  obj:FindFirstChild("Ammo").MinValue = 100
+                  obj:FindFirstChild("Ammo").Value = 100
+            else
+                  obj:FindFirstChild("Ammo").MinValue = 0
+            end
+      end
+      
+      run.RenderStepped:Connect(function()
+            local a1 = me.Backpack:FindFirstChild("Pepper-spray")
+            if a1 then
+                  if a1:FindFirstChild("Ammo").Value == 0 then
+                        sgui:SetCore("SendNotification", {
+                              Title = "Error",
+                              Text = "Please buy new pepper spray",
+                              Duration = 5
+                        })
+                  else
+                        pepper(a1)
+                  end
+            else
+                  local getchar = me.Character or me.CharacterAdded:Wait()
+                  if getchar then
+                        local a2 = getchar:FindFirstChild("Pepper-spray")
+                        if a2 then
+                              pepper(a2)
+                        else
+                              local waitpepper = me.Backpack:WaitForChild("Pepper-spray")
+                              pepper(waitpepper)
+                        end
+                  end
+            end
+      end)
+end
+
+function glassarmsL(value)
+      local viewfolder = camera:WaitForChild("ViewModel")
+      if value == true then
+            viewfolder["Left Arm"].Material = Enum.Material.ForceField
+            viewfolder["Right Arm"].Material = Enum.Material.ForceField
+      else
+            viewfolder["Left Arm"].Material = Enum.Material.Plastic
+            viewfolder["Right Arm"].Material = Enum.Material.Plastic
+      end
+      me.CharacterAdded:Connect(function()
+            if value == true then
+                  viewfolder["Left Arm"].Material = Enum.Material.ForceField
+                  viewfolder["Right Arm"].Material = Enum.Material.ForceField
+            else
+                  viewfolder["Left Arm"].Material = Enum.Material.Plastic
+                  viewfolder["Right Arm"].Material = Enum.Material.Plastic
+            end
+      end)
+end
+
+function antiflingL(value)
+      remotes.anti_fling = run.Stepped:Connect(function()
             for _, a in pairs(plrs:GetPlayers()) do
                   if a ~= me then
                         local char = a.Character or a.CharacterAdded:Wait()
@@ -1442,11 +1565,7 @@ function antiflingL(value, value2)
                               for _, obj in pairs(char:GetChildren()) do
                                     if obj:IsA("BasePart") then
                                           obj.CanCollide = value
-                                          obj.CustomPhysicalProperties = true
-                                          obj.CustomPhysicalProperties.Density = 100
                                           char:FindFirstChild("Head").CanCollide = value
-                                          char:FindFirstChild("Head").CustomPhysicalProperties = value2
-                                          char:FindFirstChild("Head").CustomPhysicalProperties.Density = 100
                                     end
                               end
                         end
@@ -1457,12 +1576,8 @@ function antiflingL(value, value2)
                         for _, a in pairs(char:GetChildren()) do
                               if a:IsA("BasePart") then
                                     a.CanCollide = value
-                                    a.CustomPhysicalProperties = value2
-                                    a.CustomPhysicalProperties.Density = 100
                                     char:FindFirstChild("Head").CanCollide = value
                                     char:FindFirstChild("Head").CanTouch = value
-                                    char:FindFirstChild("Head").CustomPhysicalProperties = value2
-                                    char:FindFirstChild("Head").CustomPhysicalProperties.Density = 100
                               end
                         end
                   end)
@@ -1471,9 +1586,9 @@ function antiflingL(value, value2)
             if mychar and mychar:WaitForChild("HumanoidRootPart") then
                   for _, a in pairs(mychar:GetChildren()) do
                         if a:IsA("BasePart") then
-                              a.CanCollide = false
-                              mychar:FindFirstChild("Head").CanCollide = false
-                              mychar:FindFirstChild("Head").CanTouch = false
+                              a.CanCollide = value
+                              mychar:FindFirstChild("Head").CanCollide = value
+                              mychar:FindFirstChild("Head").CanTouch = value
                         end
                   end
             end
@@ -1529,7 +1644,7 @@ end
 
 function highlightL()
       local function add(character)
-            if not character:FindFirstChild("Highlight") then
+            if character and character:FindFirstChild("HumanoidRootPart") and not character:FindFirstChildOfClass("Highlight") then
                   local highlight = Instance.new("Highlight")
                   highlight.Adornee = character
                   highlight.FillTransparency = 1
@@ -1545,34 +1660,56 @@ function highlightL()
       end
 
       local function isview(character)
-            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-            if humanoidRootPart then
-                  local Noscreen, Inscreen = camera:WorldToScreenPoint(humanoidRootPart.Position)
-                  return Inscreen
+            while run.RenderStepped:Wait() do
+                  if character then
+                        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+                        if humanoidRootPart then
+                              local Noscreen, Inscreen = camera:WorldToScreenPoint(humanoidRootPart.Position)
+                              if Inscreen then
+                                    return Inscreen
+                              end
+                        end
+                  end
+                  return false
             end
-            return false
       end
 
       local function update()
             local Players = plrs:GetPlayers()
             for _, plr in ipairs(Players) do
                   if plr ~= me then
-                        local char = plr.Character
+                        local char = plr.Character or plr.CharacterAdded:Wait()
                         if char then
-                              if functions.highlightF then
-                                    if isview(char) then
+                              if functions.highlightF == true then
+                                    if isview(char) and not char:FindFirstChildOfClass("Highlight") then
                                           task.wait()
                                           add(char)
                                     else
                                           task.wait()
                                           remove(char)
                                     end
+                              else
+                                    for _, a in pairs(Players) do
+                                          if a ~= me then
+                                                local char2 = a.Character or a.CharacterAdded:Wait()
+                                                if char2 then
+                                                      task.wait()
+                                                      remove(char2)
+                                                      if isview(char2) then
+                                                            task.wait()
+                                                            remove(char2)
+                                                      end
+                                                end
+                                          end
+                                    end
                               end
                         end
                   end
             end
       end
-      run.RenderStepped:Connect(update)
+      while run.Stepped:Wait() do
+            update()
+      end
 end
 
 function aimbotL()
@@ -1850,21 +1987,81 @@ SettingsList.MouseButton1Click:Connect(function()
       end
 end)
 
+TrollList.MouseButton1Click:Connect(function()
+      for _, a in pairs(Menus:GetChildren()) do
+            if a:IsA("Frame") and a ~= TrollMenu then
+                  a.Visible = false
+                  TrollMenu.Visible = true
+            end
+      end
+end)
+
+infpepperTurn.MouseButton1Click:Connect(function()
+      if functions.inf_pepperF == false then
+            functions.inf_pepperF = true
+            infpepperinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            infpepperanim1 = tween:Create(infpepperTurn, infpepperinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            infpepperanim1:Play()
+            infpepperanim1.Completed:Connect(function()
+                  infpepperTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+            end)
+            infpepperL(true)
+      elseif functions.inf_pepperF == true then
+            functions.inf_pepperF = false
+            infpepperinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            infpepperanim2 = tween:Create(infpepperTurn, infpepperinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            infpepperanim2:Play()
+            infpepperanim2.Completed:Connect(function()
+                  infpepperTurn.BackgroundColor3 = Color3.new(0.517647, 0, 0)
+            end)
+            infpepperL(false)
+      end
+end)
+
+glassarmsTurn.MouseButton1Click:Connect(function()
+      if functions.glass_armsF == false then
+            functions.glass_armsF = true
+            glassarmsinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            glassarmsanim1 = tween:Create(glassarmsTurn, glassarmsinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            glassarmsanim1:Play()
+            glassarmsanim1.Completed:Connect(function()
+                  glassarmsTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+            end)
+            glassarmsL(true)
+      elseif functions.glass_armsF == true then
+            functions.glass_armsF = false
+            glassarmsinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            glassarmsanim2 = tween:Create(glassarmsTurn, glassarmsinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            glassarmsanim2:Play()
+            glassarmsanim2.Completed:Connect(function()
+                  glassarmsTurn.BackgroundColor3 = Color3.new(0.517647, 0, 0)
+            end)
+            glassarmsL(false)
+      end
+end)
+
 antiflingTurn.MouseButton1Click:Connect(function()
-      if functions.AntiFling == false then
-            functions.AntiFling = true
+      if functions.anti_flingF == false then
+            functions.anti_flingF = true
             antiflinginfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
             antiflinganim1 = tween:Create(antiflingTurn, antiflinginfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
             antiflinganim1:Play()
             antiflinganim1.Completed:Connect(function()
                   antiflingTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
             end)
-            antiflingL(false, true)
-      elseif functions.AntiFling == true then
-            functions.AntiFling = false
-            antiflingL(true, false)
+            if remotes.anti_fling ~= nil then
+                  remotes.anti_fling:Disconnect()
+            end
+            antiflingL(false)
+      elseif functions.anti_flingF == true then
+            functions.anti_flingF = false
             antiflinginfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
             antiflinganim2 = tween:Create(antiflingTurn, antiflinginfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            antiflinganim2:Play()
+            antiflinganim2.Completed:Connect(function()
+                  antiflingTurn.BackgroundColor3 = Color3.new(1, 0, 0)
+            end)
+            antiflingL(true)
       end
 end)
 
@@ -2029,10 +2226,12 @@ nofalldamageTurn.MouseButton1Click:Connect(function()
                   nofalldamageTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
             end)
 
-            char1 = me.Character or me.CharacterAdded:Wait()
-            force = Instance.new("ForceField")
-            force.Parent = char1
-            force.Visible = false
+            character = me.Character or me.CharacterAdded:Wait()
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                  force = Instance.new("ForceField")
+                  force.Parent = character
+                  force.Visible = false
+            end
 
             me.CharacterAdded:Connect(function(newChar)
                   if functions.nofalldamageF then
@@ -2075,17 +2274,6 @@ highlightTurn.MouseButton1Click:Connect(function()
             highlightanim2.Completed:Connect(function()
                   highlightTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
-            for _, a in pairs(plrs:GetPlayers()) do
-                  if a ~= me then
-                        char = a.Character
-                        if char then
-                              chams = char:FindFirstChildOfClass("Highlight")
-                              if chams then
-                                    chams:Destroy()
-                              end
-                        end
-                  end
-            end
       end
 end)
 
