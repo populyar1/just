@@ -1513,11 +1513,7 @@ function infpepperL(value)
             local a1 = me.Backpack:FindFirstChild("Pepper-spray")
             if a1 then
                   if a1:FindFirstChild("Ammo").Value == 0 then
-                        sgui:SetCore("SendNotification", {
-                              Title = "Error",
-                              Text = "Please buy new pepper spray",
-                              Duration = 5
-                        })
+                        a1:Destroy()
                   else
                         pepper(a1)
                   end
