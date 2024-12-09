@@ -51,7 +51,7 @@ if mych then
 end
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = me.PlayerGui
+Gui.Parent = game.CoreGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -1014,7 +1014,7 @@ local antifling = Instance.new("TextLabel")
 antifling.Parent = PlayerMenu
 antifling.Name = "anti-fling"
 antifling.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-antifling.Position = UDim2.new(0.016, 0, 0.446, 0)
+antifling.Position = UDim2.new(0.016, 0, 0.36, 0)
 antifling.Size = UDim2.new(0, 194, 0, 32)
 antifling.TextScaled = true
 antifling.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
@@ -1062,23 +1062,11 @@ uicantiflingturn = Instance.new("UICorner")
 uicantiflingturn.Parent = antiflingTurn
 uicantiflingturn.CornerRadius = UDim.new(8, 8)
 
-local antiflingSoon = Instance.new("TextLabel")
-antiflingSoon.Parent = antifling
-antiflingSoon.Name = "soon"
-antiflingSoon.BackgroundTransparency = 1
-antiflingSoon.BackgroundColor3 = Color3.new(1, 1, 1)
-antiflingSoon.Position = UDim2.new(1.656, 0, 0, 0)
-antiflingSoon.Size = UDim2.new(0, 89, 0, 32)
-antiflingSoon.TextScaled = true
-antiflingSoon.TextColor3 = Color3.new(1, 1, 1)
-antiflingSoon.Text = "- soon"
-antiflingSoon.Visible = true
-
 local infstamina = Instance.new("TextLabel")
 infstamina.Parent = PlayerMenu
 infstamina.Name = "infstamina"
 infstamina.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-infstamina.Position = UDim2.new(0.016, 0, 0.533, 0)
+infstamina.Position = UDim2.new(0.016, 0, 0.445, 0)
 infstamina.Size = UDim2.new(0, 194, 0, 32)
 infstamina.TextScaled = true
 infstamina.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
@@ -1130,7 +1118,7 @@ local nofalldamage = Instance.new("TextLabel")
 nofalldamage.Parent = PlayerMenu
 nofalldamage.Name = "nofalldamage"
 nofalldamage.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-nofalldamage.Position = UDim2.new(0.016, 0, 0.619, 0)
+nofalldamage.Position = UDim2.new(0.016, 0, 0.527, 0)
 nofalldamage.Size = UDim2.new(0, 194, 0, 32)
 nofalldamage.TextScaled = true
 nofalldamage.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
@@ -1489,58 +1477,6 @@ infpepperTurn.Visible = true
 local uicinfpepperturn = Instance.new("UICorner")
 uicinfpepperturn.Parent = infpepperTurn
 uicinfpepperturn.CornerRadius = UDim.new(8, 8)
-
-local antifling = Instance.new("TextLabel")
-antifling.Parent = PlayerMenu
-antifling.Name = "anti-fling"
-antifling.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-antifling.Position = UDim2.new(0.016, 0, 0.36, 0)
-antifling.Size = UDim2.new(0, 194, 0, 32)
-antifling.TextScaled = true
-antifling.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
-antifling.Text = "anti-fling"
-antifling.Visible = true
-
-uicantifling = Instance.new("UICorner")
-uicantifling.Parent = antifling
-uicantifling.CornerRadius = UDim.new(0, 8)
-
-local antiflingHow = Instance.new("ImageLabel")
-antiflingHow.Parent = antifling
-antiflingHow.Name = "how"
-antiflingHow.Position = UDim2.new(1.077, 0, 0, 0)
-antiflingHow.Size = UDim2.new(0, 32, 0, 32)
-antiflingHow.Image = "rbxassetid://75772970732380"
-antiflingHow.Visible = true
-
-uicantiflinghow = Instance.new("UICorner")
-uicantiflinghow.Parent = antiflingHow
-uicantiflinghow.CornerRadius = UDim.new(8, 8)
-
-local antiflingControl = Instance.new("Frame")
-antiflingControl.Parent = antifling
-antiflingControl.Name = "Control"
-antiflingControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
-antiflingControl.Position = UDim2.new(1.309, 0, 0, 0)
-antiflingControl.Size = UDim2.new(0, 58, 0, 32)
-antiflingControl.Visible = true
-
-uicantiflingcontrol = Instance.new("UICorner")
-uicantiflingcontrol.Parent = antiflingControl
-uicantiflingcontrol.CornerRadius = UDim.new(8, 8)
-
-local antiflingTurn = Instance.new("TextButton")
-antiflingTurn.Parent = antiflingControl
-antiflingTurn.Name = "turn"
-antiflingTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-antiflingTurn.Position = UDim2.new(0, 0, 0, 0)
-antiflingTurn.Size = UDim2.new(0, 35, 0, 32)
-antiflingTurn.Text = ""
-antiflingTurn.Visible = true
-
-uicantiflingturn = Instance.new("UICorner")
-uicantiflingturn.Parent = antiflingTurn
-uicantiflingturn.CornerRadius = UDim.new(8, 8)
 
 local Commands = {
       leave = function()
