@@ -36,7 +36,7 @@ local remotes = {
       gravityslider_dragging = false;
       circle = nil;
       circle_pos = nil;
-      anti_fling = nil;
+      highlight;
 }
 
 local ChatFrame = me.PlayerGui:WaitForChild("Chat").Frame
@@ -1512,8 +1512,8 @@ function infpepperL(value)
       run.RenderStepped:Connect(function()
             local a1 = me.Backpack:FindFirstChild("Pepper-spray")
             if a1 then
-                  if a1:FindFirstChild("Ammo").Value == 0 then
-                        a1:Destroy()
+                  if a1:FindFirstChild("Ammo").Value < 1 then
+                        return nil
                   else
                         pepper(a1)
                   end
@@ -1552,43 +1552,55 @@ function glassarmsL(value)
       end)
 end
 
-function antiflingL(value)
-      remotes.anti_fling = run.Stepped:Connect(function()
+function antiflingL()
+     run.Stepped:Connect(function()
             for _, a in pairs(plrs:GetPlayers()) do
                   if a ~= me then
                         local char = a.Character or a.CharacterAdded:Wait()
-                        if char and char:WaitForChild("HumanoidRootPart") then
-                              for _, obj in pairs(char:GetChildren()) do
-                                    if obj:IsA("BasePart") then
-                                          obj.CanCollide = value
-                                          char:FindFirstChild("Head").CanCollide = value
+                        if char then
+                              for _, b in pairs(char:GetChildren()) do
+                                    if b:IsA("BasePart") then
+                                          if functions.anti_flingF == true then
+                                                b.CanCollide = false
+                                                b.CanTouch = false
+                                                b.Massless = true
+                                          else
+                                                b.CanCollide = true
+                                                b.CanTouch = true
+                                                b.Massless = false
+                                          end
                                     end
                               end
                         end
                   end
             end
             plrs.PlayerAdded:Connect(function(plr)
-                  plr.CharacterAdded:Connect(function(char)
-                        for _, a in pairs(char:GetChildren()) do
-                              if a:IsA("BasePart") then
-                                    a.CanCollide = value
-                                    char:FindFirstChild("Head").CanCollide = value
-                                    char:FindFirstChild("Head").CanTouch = value
+                  plr.CharacterAdded:Connect(function(charadd)
+                        for _, obj in pairs(charadd:GetChildren()) do
+                              if obj:IsA("BasePart") then
+                                    if functions.anti_flingF == true then
+                                          obj.CanCollide = false
+                                          obj.CanTouch = false
+                                          obj.Massless = true
+                                    else
+                                          obj.CanCollide = true
+                                          obj.CanTouch = true
+                                          obj.Massless = false
+                                    end
                               end
                         end
                   end)
             end)
-            local mychar = me.Character or me.CharacterAdded:Wait()
-            if mychar and mychar:WaitForChild("HumanoidRootPart") then
-                  for _, a in pairs(mychar:GetChildren()) do
+            local mychar2 = me.Character or me.CharacterAdded:Wait()
+            if mychar2 then
+                  for _, a in pairs(mychar2:GetChildren()) do
                         if a:IsA("BasePart") then
-                              a.CanCollide = value
-                              mychar:FindFirstChild("Head").CanCollide = value
-                              mychar:FindFirstChild("Head").CanTouch = value
+                              a.CanCollide = false
+                              a.CanTouch = false
                         end
                   end
             end
-      end)
+     end)
 end
 
 function lockpickL()
@@ -1639,73 +1651,7 @@ function fastpickupL()
 end
 
 function highlightL()
-      local function add(character)
-            if character and character:FindFirstChild("HumanoidRootPart") and not character:FindFirstChildOfClass("Highlight") then
-                  local highlight = Instance.new("Highlight")
-                  highlight.Adornee = character
-                  highlight.FillTransparency = 1
-                  highlight.Parent = character
-            end
-      end
-
-      local function remove(character)
-            local highlight = character:FindFirstChild("Highlight")
-            if highlight then
-                  highlight:Destroy()
-            end
-      end
-
-      local function isview(character)
-            while run.RenderStepped:Wait() do
-                  if character then
-                        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-                        if humanoidRootPart then
-                              local Noscreen, Inscreen = camera:WorldToScreenPoint(humanoidRootPart.Position)
-                              if Inscreen then
-                                    return Inscreen
-                              end
-                        end
-                  end
-                  return false
-            end
-      end
-
-      local function update()
-            local Players = plrs:GetPlayers()
-            for _, plr in ipairs(Players) do
-                  if plr ~= me then
-                        local char = plr.Character or plr.CharacterAdded:Wait()
-                        if char then
-                              if functions.highlightF == true then
-                                    if isview(char) and not char:FindFirstChildOfClass("Highlight") then
-                                          task.wait()
-                                          add(char)
-                                    else
-                                          task.wait()
-                                          remove(char)
-                                    end
-                              else
-                                    for _, a in pairs(Players) do
-                                          if a ~= me then
-                                                local char2 = a.Character or a.CharacterAdded:Wait()
-                                                if char2 then
-                                                      task.wait()
-                                                      remove(char2)
-                                                      if isview(char2) then
-                                                            task.wait()
-                                                            remove(char2)
-                                                      end
-                                                end
-                                          end
-                                    end
-                              end
-                        end
-                  end
-            end
-      end
-      while run.Stepped:Wait() do
-            update()
-      end
+      ConsoleText("this function is disabled", "text")
 end
 
 function aimbotL()
@@ -1908,6 +1854,7 @@ function ConsoleText(text, typeF)
       local strokeColor = '<font color="rgb(255, 255, 255)">'..stroke..".  "..'</font>'
       local errorColor = '<font color="rgb(255, 0, 0)">'..text..'</font>'
       local succesColor = '<font color="rgb(0, 255, 0)">'..text..'</font>'
+      local textColor = '<font color="rgb(255, 255, 255)">'..text..'</font>'
       
       if consoletext.Text == "" and typeF == "error" then
             consoletext.Text = strokeColor..errorColor
@@ -1921,6 +1868,13 @@ function ConsoleText(text, typeF)
             stroke += 1
       elseif consoletext.Text ~= "" and typeF == "succes" then
             consoletext.Text = consoletext.Text.."\n"..strokeColor..succesColor
+            stroke += 1
+      end
+      if consoletext.Text == "" and typeF == "text" then
+            consoletext.Text = strokeColor..textColor
+            stroke += 1
+      elseif consoletext.Text ~= "" and typeF == "text" then
+            consoletext.Text = consoletext.Text.."\n"..strokeColor..textColor
             stroke += 1
       end
       if text == "" then
@@ -2045,10 +1999,7 @@ antiflingTurn.MouseButton1Click:Connect(function()
             antiflinganim1.Completed:Connect(function()
                   antiflingTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
             end)
-            if remotes.anti_fling ~= nil then
-                  remotes.anti_fling:Disconnect()
-            end
-            antiflingL(false)
+            antiflingL()
       elseif functions.anti_flingF == true then
             functions.anti_flingF = false
             antiflinginfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
@@ -2057,7 +2008,7 @@ antiflingTurn.MouseButton1Click:Connect(function()
             antiflinganim2.Completed:Connect(function()
                   antiflingTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
-            antiflingL(true)
+            antiflingL()
       end
 end)
 
