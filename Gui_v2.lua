@@ -6,7 +6,6 @@ local light = game:GetService("Lighting")
 local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
-local sgui = game:GetService("StarterGui")
 
 local cmds = {"leave", "reset", "clear", "close", "reload"}
 
@@ -36,7 +35,6 @@ local remotes = {
       gravityslider_dragging = false;
       circle = nil;
       circle_pos = nil;
-      highlight;
 }
 
 local ChatFrame = me.PlayerGui:WaitForChild("Chat").Frame
@@ -53,7 +51,7 @@ if mych then
 end
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = me.PlayerGui
+Gui.Parent = game.CoreGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -1987,7 +1985,6 @@ antiflingTurn.MouseButton1Click:Connect(function()
             antiflinganim2.Completed:Connect(function()
                   antiflingTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
-            antiflingL()
       end
 end)
 
