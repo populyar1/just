@@ -1731,28 +1731,7 @@ function aimbotL()
 end
 
 function atmL()
-      function GetATM(Studs)
-            local Part;
-            for _, v in ipairs(game:GetService("Workspace").Map.ATMz:GetChildren()) do
-                  if v:FindFirstChild("MainPart") then
-                        local Distance = (me.Character.HumanoidRootPart.Position - v:FindFirstChild("MainPart").Position).Magnitude
-                        if Distance < Studs then
-                              Studs = Distance
-                              Part = v:FindFirstChild("MainPart")
-                        end
-                  end
-            end
-            return Part
-      end
-      
-      run.RenderStepped:Connect(function()
-            if game:GetService("ReplicatedStorage").PlayerbaseData2[game:GetService("Players").LocalPlayer.Name].NextAllowance.Value == 0 then
-                  local ATM = GetATM()
-                  if functions.atmF then
-                        game:GetService("ReplicatedStorage").Events.CLMZALOW:InvokeServer(ATM)
-                  end
-            end
-      end)
+      ConsoleText("this function is disabled", "text")
 end
 
 function infstaminaL()
