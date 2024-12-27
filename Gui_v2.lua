@@ -45,7 +45,7 @@ ChatFrame.ChatChannelParentFrame.Visible = true
 ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = game.CoreGui
+Gui.Parent = me.PlayerGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -1660,49 +1660,66 @@ function hitboxL()
       function resize(plr)
             local getcharacter = plr.Character or plr.CharacterAdded:Wait()
             local head = getcharacter:FindFirstChild("Head")
-            local oldSize = head.Size
+            local oldSize = Vector3.new(1.2, 1, 1)
             local newSize = Vector3.new(6.5, 6.5, 6.5)
-            while true do
+
+            while run.Stepped:Wait() do
                   if head then
                         if functions.hitbox_expanderF then
                               if head.Size ~= newSize then
                                     head.Size = newSize
+                              end
+                              if not head.Massless then
                                     head.Massless = true
-                              else
-                                    return false
+                              end
+                              if head.Transparency ~= 0.5 then
+                                    head.Transparency = 0.5
                               end
                         else
-                              if head and head.Size ~= oldSize then
+                              if head.Size ~= oldSize then
                                     head.Size = oldSize
+                              end
+                              if head.Massless then
                                     head.Massless = false
+                              end
+                              if head.Transparency ~= 0 then
+                                    head.Transparency = 0
                               end
                         end
                   end
-                  wait(3)
             end
       end
       function check()
-            while true do
+            while run.Stepped:Wait() do
                   for _, a in pairs(plrs:GetPlayers()) do
                         if a ~= me then
-                              resize(a)
+                              local success, errorMsg = pcall(function()
+                                    resize(a)
+                              end)
+                              if not success then
+                                    warn("Error resizing for player:", a.Name, errorMsg)
+                              end
                         end
                   end
-                  wait(3)
             end
       end
       plrs.PlayerAdded:Connect(function(added)
             added.CharacterAdded:Connect(function(charadded)
                   if charadded then
-                        check()
+                        spawn(function()
+                              check()
+                        end)
                   end
             end)
       end)
-      spawn(check)
-      
+      spawn(function()
+            check()
+      end)
       for _, a in pairs(plrs:GetPlayers()) do
             if a ~= me then
-                  check()
+                  spawn(function()
+                        resize(a)
+                  end)
             end
       end
 end
@@ -1867,9 +1884,9 @@ function highlightL()
             end
       end
 
-      run.Heartbeat:Connect(function()
+      while run.Heartbeat:Wait() do
             updateHighlights()
-      end)
+      end
 end
 
 function aimbotL()
@@ -2156,10 +2173,10 @@ hitboxTurn.MouseButton1Click:Connect(function()
       elseif functions.hitbox_expanderF == true then
             functions.hitbox_expanderF = false
             hitboxinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            hitboxanim2 = tween:Create(hitboxTurn, hitboxinfo2, {Position = UDim2.new(0.388, 0, 0.05, 0)})
+            hitboxanim2 = tween:Create(hitboxTurn, hitboxinfo2, {Position = UDim2.new(0, 0, 0, 0)})
             hitboxanim2:Play()
             hitboxanim2.Completed:Connect(function()
-                  hitboxTurn.BackgroundColor3 = Color3.new(0.517647, 0, 0)
+                  hitboxTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
       end
 end)
@@ -2177,10 +2194,10 @@ reloadTurn.MouseButton1Click:Connect(function()
       elseif functions.instant_reloadF == true then
             functions.instant_reloadF = false
             reloadinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            reloadanim2 = tween:Create(reloadTurn, reloadinfo2, {Position = UDim2.new(0.388, 0, 0.05, 0)})
+            reloadanim2 = tween:Create(reloadTurn, reloadinfo2, {Position = UDim2.new(0, 0, 0, 0)})
             reloadanim2:Play()
             reloadanim2.Completed:Connect(function()
-                  reloadTurn.BackgroundColor3 = Color3.new(0.517647, 0, 0)
+                  reloadTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
       end
 end)
@@ -2210,7 +2227,7 @@ infpepperTurn.MouseButton1Click:Connect(function()
             infpepperanim2 = tween:Create(infpepperTurn, infpepperinfo2, {Position = UDim2.new(0, 0, 0, 0)})
             infpepperanim2:Play()
             infpepperanim2.Completed:Connect(function()
-                  infpepperTurn.BackgroundColor3 = Color3.new(0.517647, 0, 0)
+                  infpepperTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
             infpepperL(false)
       end
@@ -2232,7 +2249,7 @@ glassarmsTurn.MouseButton1Click:Connect(function()
             glassarmsanim2 = tween:Create(glassarmsTurn, glassarmsinfo2, {Position = UDim2.new(0, 0, 0, 0)})
             glassarmsanim2:Play()
             glassarmsanim2.Completed:Connect(function()
-                  glassarmsTurn.BackgroundColor3 = Color3.new(0.517647, 0, 0)
+                  glassarmsTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
             glassarmsL(false)
       end
