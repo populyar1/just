@@ -45,7 +45,7 @@ ChatFrame.ChatChannelParentFrame.Visible = true
 ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = game.CoreGui
+Gui.Parent = me.PlayerGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -1658,13 +1658,10 @@ local Commands = {
 
 function hitboxL()
       function resize(plr)
-            local getcharacter = plr.Character or plr.CharacterAdded:Wait()
-            local head = getcharacter:FindFirstChild("Head")
-            local oldSize = Vector3.new(1.2, 1, 1)
-            local newSize = Vector3.new(6.5, 6.5, 6.5)
-
-            while run.Stepped:Wait() do
-                  if head then
+            local function applyChanges(head)
+                  local oldSize = Vector3.new(1.2, 1, 1)
+                  local newSize = Vector3.new(6.5, 6.5, 6.5)
+                  while run.Stepped:Wait() do
                         if functions.hitbox_expanderF then
                               if head.Size ~= newSize then
                                     head.Size = newSize
@@ -1687,42 +1684,33 @@ function hitboxL()
                               end
                         end
                   end
-                  wait(0.5)
+            end
+            local function processCharacter(character)
+                  local head = character:WaitForChild("Head", 5)
+                  if head then
+                        spawn(function()
+                              applyChanges(head)
+                        end)
+                  end
+            end
+            plr.CharacterAdded:Connect(function(character)
+                  processCharacter(character)
+            end)
+            if plr.Character then
+                  processCharacter(plr.Character)
             end
       end
       function check()
-            while run.Stepped:Wait() do
-                  for _, a in pairs(plrs:GetPlayers()) do
-                        if a ~= me then
-                              local success, errorMsg = pcall(function()
-                                    resize(a)
-                              end)
-                              if not success then
-                                    warn("Error resizing for player:", a.Name, errorMsg)
-                              end
-                        end
+            for _, a in pairs(plrs:GetPlayers()) do
+                  if a ~= me then
+                        resize(a)
                   end
             end
       end
       plrs.PlayerAdded:Connect(function(added)
-            added.CharacterAdded:Connect(function(charadded)
-                  if charadded then
-                        spawn(function()
-                              check()
-                        end)
-                  end
-            end)
+            resize(added)
       end)
-      spawn(function()
-            check()
-      end)
-      for _, a in pairs(plrs:GetPlayers()) do
-            if a ~= me then
-                  spawn(function()
-                        resize(a)
-                  end)
-            end
-      end
+      check()
 end
 
 function instantreloadL()
