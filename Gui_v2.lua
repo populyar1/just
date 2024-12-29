@@ -45,7 +45,7 @@ ChatFrame.ChatChannelParentFrame.Visible = true
 ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
 
 local Gui = Instance.new("ScreenGui")
-Gui.Parent = me.PlayerGui
+Gui.Parent = game.CoreGui
 Gui.Name = "New"
 Gui.Enabled = true
 Gui.ResetOnSpawn = false
@@ -1529,7 +1529,7 @@ uisadonisload.Color = Color3.new(1, 1, 1)
 uisadonisload.LineJoinMode = Enum.LineJoinMode.Round
 uisadonisload.Thickness = 1
 
-local Reload = Instance.new("TextButton")
+local Reload = Instance.new("TextLabel")
 Reload.Parent = MainMenu
 Reload.Name = "Reload"
 Reload.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
