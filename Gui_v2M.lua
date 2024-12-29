@@ -26,6 +26,8 @@ local functions = {
       atmF = false;
       glass_armsF = false;
       inf_pepperF = false;
+      instant_reloadF = false;
+      hitbox_expanderF = false;
 }
 
 local remotes = {
@@ -35,20 +37,12 @@ local remotes = {
       gravityslider_dragging = false;
       circle = nil;
       circle_pos = nil;
+      adonis_pressed = false;
 }
 
-local ChatFrame = me.PlayerGui.Chat.Frame
+local ChatFrame = me.PlayerGui:WaitForChild("Chat").Frame
 ChatFrame.ChatChannelParentFrame.Visible = true
 ChatFrame.ChatBarParentFrame.Position = UDim2.new(0, 0, 1, -42)
-
-local mych = me.Character or me.CharacterAdded:Wait()
-if mych then
-      for _, a in pairs(mych:GetChildren()) do
-            if a:IsA("BasePart") then
-                  a.CustomPhysicalProperties = PhysicalProperties.new(100, 1, 1, 1, 1)
-            end
-      end
-end
 
 local Gui = Instance.new("ScreenGui")
 Gui.Parent = game.CoreGui
@@ -59,7 +53,7 @@ Gui.ResetOnSpawn = false
 local dragg = Instance.new("Frame")
 dragg.Parent = Gui
 dragg.Name = "dragg"
-dragg.BackgroundColor3 = Color3.new(0.117647, 0.117647, 0.117647)
+dragg.BackgroundColor3 = Color3.new(0.0862745, 0.0862745, 0.0862745)
 dragg.Position = UDim2.new(0.24, 0, 0.132, 0)
 dragg.Size = UDim2.new(0, 405, 0, 19)
 dragg.Visible = true
@@ -78,6 +72,25 @@ uisdragg.Thickness = 1
 local uisdragg = Instance.new("UIScale")
 uisdragg.Parent = dragg
 uisdragg.Scale = 0.55
+
+local OCmenuButton = Instance.new("TextButton")
+OCmenuButton.Parent = Gui
+OCmenuButton.Name = "OCmenu"
+OCmenuButton.BackgroundColor3 = Color3.new(0, 0, 0)
+OCmenuButton.Position = UDim2.new(0.487, 0, 0.044, 0)
+OCmenuButton.Size = UDim2.new(0.026, 0, 0.049, 0)
+OCmenuButton.TextColor3 = Color3.new(1, 1, 1)
+OCmenuButton.Text = "Menu"
+OCmenuButton.TextScaled = true
+OCmenuButton.Visible = true
+
+local uicocmenubutton = Instance.new("UICorner")
+uicocmenubutton.Parent = OCmenuButton
+uicocmenubutton.CornerRadius = UDim.new(8, 8)
+
+local uitsocmenubutton = Instance.new("UITextSizeConstraint")
+uitsocmenubutton.Parent = OCmenuButton
+uitsocmenubutton.MaxTextSize = 14
 
 local mainframe = Instance.new("Frame")
 mainframe.Parent = dragg
@@ -103,6 +116,15 @@ uistmf.LineJoinMode = Enum.LineJoinMode.Round
 uistmf.Thickness = 2
 uistmf.Transparency = 0
 uistmf.Enabled = true
+
+uigmf = Instance.new("UIGradient")
+uigmf.Parent = mainframe
+uigmf.Rotation = 40
+uigmf.Color = ColorSequence.new({
+      ColorSequenceKeypoint.new(0, Color3.new(0.117647, 0.117647, 0.117647)),
+      ColorSequenceKeypoint.new(0.824, Color3.new(0.886275, 0.886275, 0.886275)),
+      ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
+})
 
 local console = Instance.new("Frame")
 console.Parent = mainframe
@@ -171,6 +193,15 @@ uistl.LineJoinMode = Enum.LineJoinMode.Round
 uistl.Thickness = 2
 uistl.Transparency = 0
 uistl.Enabled = true
+
+uigl = Instance.new("UIGradient")
+uigl.Parent = list
+uigl.Rotation = 0
+uigl.Color = ColorSequence.new({
+      ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+      ColorSequenceKeypoint.new(0.6, Color3.new(0.207843, 0.207843, 0.207843)),
+      ColorSequenceKeypoint.new(1, Color3.new(0, 0, 0))
+})
 
 local beta = Instance.new("TextLabel")
 beta.Parent = mainframe
@@ -266,26 +297,11 @@ uicvisuall = Instance.new("UICorner")
 uicvisuall.Parent = VisualList
 uicvisuall.CornerRadius = UDim.new(0, 25)
 
-local AnimationsList = Instance.new("TextButton")
-AnimationsList.Parent = list
-AnimationsList.Name = "Animations"
-AnimationsList.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-AnimationsList.Position = UDim2.new(0.054, 0, 0.355, 0)
-AnimationsList.Size = UDim2.new(0, 176, 0, 38)
-AnimationsList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
-AnimationsList.TextScaled = true
-AnimationsList.Text = "Animations (soon)"
-AnimationsList.Visible = true
-
-uicanimationsl = Instance.new("UICorner")
-uicanimationsl.Parent = AnimationsList
-uicanimationsl.CornerRadius = UDim.new(0, 25)
-
 local SkinsList = Instance.new("TextButton")
 SkinsList.Parent = list
 SkinsList.Name = "Skins"
 SkinsList.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-SkinsList.Position = UDim2.new(0.054, 0, 0.438, 0)
+SkinsList.Position = UDim2.new(0.054, 0, 0.352, 0)
 SkinsList.Size = UDim2.new(0, 176, 0, 38)
 SkinsList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 SkinsList.TextScaled = true
@@ -300,7 +316,7 @@ local TrollList = Instance.new("TextButton")
 TrollList.Parent = list
 TrollList.Name = "Troll"
 TrollList.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-TrollList.Position = UDim2.new(0.054, 0, 0.524, 0)
+TrollList.Position = UDim2.new(0.054, 0, 0.442, 0)
 TrollList.Size = UDim2.new(0, 176, 0, 38)
 TrollList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 TrollList.TextScaled = true
@@ -315,7 +331,7 @@ local FarmList = Instance.new("TextButton")
 FarmList.Parent = list
 FarmList.Name = "Farm"
 FarmList.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-FarmList.Position = UDim2.new(0.054, 0, 0.614, 0)
+FarmList.Position = UDim2.new(0.054, 0, 0.526, 0)
 FarmList.Size = UDim2.new(0, 176, 0, 38)
 FarmList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 FarmList.TextScaled = true
@@ -330,7 +346,7 @@ local SettingsList = Instance.new("TextButton")
 SettingsList.Parent = list
 SettingsList.Name = "Settings"
 SettingsList.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-SettingsList.Position = UDim2.new(0.054, 0, 0.789, 0)
+SettingsList.Position = UDim2.new(0.054, 0, 0.697, 0)
 SettingsList.Size = UDim2.new(0, 176, 0, 38)
 SettingsList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 SettingsList.TextScaled = true
@@ -345,7 +361,7 @@ local OthersList = Instance.new("TextButton")
 OthersList.Parent = list
 OthersList.Name = "Others"
 OthersList.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-OthersList.Position = UDim2.new(0.054, 0, 0.706, 0)
+OthersList.Position = UDim2.new(0.048, 0, 0.612, 0)
 OthersList.Size = UDim2.new(0, 176, 0, 38)
 OthersList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 OthersList.TextScaled = true
@@ -360,7 +376,7 @@ local ConfigList = Instance.new("TextButton")
 ConfigList.Parent = list
 ConfigList.Name = "Config"
 ConfigList.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-ConfigList.Position = UDim2.new(0.054, 0, 0.873, 0)
+ConfigList.Position = UDim2.new(0.054, 0, 0.78, 0)
 ConfigList.Size = UDim2.new(0, 176, 0, 38)
 ConfigList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 ConfigList.TextScaled = true
@@ -1478,6 +1494,159 @@ local uicinfpepperturn = Instance.new("UICorner")
 uicinfpepperturn.Parent = infpepperTurn
 uicinfpepperturn.CornerRadius = UDim.new(8, 8)
 
+local Adonis = Instance.new("TextLabel")
+Adonis.Parent = SettingsMenu
+Adonis.Name = "adonis"
+Adonis.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+Adonis.Position = UDim2.new(0.016, 0, 0.022, 0)
+Adonis.Size = UDim2.new(0, 194, 0, 32)
+Adonis.TextScaled = true
+Adonis.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+Adonis.Text = "Adonis bypass"
+Adonis.Visible = true
+
+local uicadonis = Instance.new("UICorner")
+uicadonis.Parent = Adonis
+uicadonis.CornerRadius = UDim.new(0, 8)
+
+local adonisHow = Instance.new("ImageLabel")
+adonisHow.Parent = Adonis
+adonisHow.Name = "how"
+adonisHow.Position = UDim2.new(1.077, 0, 0, 0)
+adonisHow.Size = UDim2.new(0, 32, 0, 32)
+adonisHow.Image = "rbxassetid://75772970732380"
+adonisHow.Visible = true
+
+local uicadonisHow = Instance.new("UICorner")
+uicadonisHow.Parent = adonisHow
+uicadonisHow.CornerRadius = UDim.new(8, 8)
+
+local adonisLoad = Instance.new("TextButton")
+adonisLoad.Parent = Adonis
+adonisLoad.Name = "load"
+adonisLoad.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+adonisLoad.Position = UDim2.new(1.36, 0, 0, 0)
+adonisLoad.Size = UDim2.new(0, 104, 0, 32)
+adonisLoad.Text = "Load"
+adonisLoad.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+adonisLoad.TextScaled = true
+adonisLoad.Visible = true
+
+local uicadonisLoad = Instance.new("UICorner")
+uicadonisLoad.Parent = adonisLoad
+uicadonisLoad.CornerRadius = UDim.new(8, 8)
+
+local uisadonisload = Instance.new("UIStroke")
+uisadonisload.Parent = adonisLoad
+uisadonisload.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisadonisload.Color = Color3.new(1, 1, 1)
+uisadonisload.LineJoinMode = Enum.LineJoinMode.Round
+uisadonisload.Thickness = 1
+
+local Reload = Instance.new("TextLabel")
+Reload.Parent = MainMenu
+Reload.Name = "Reload"
+Reload.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+Reload.Position = UDim2.new(0.016, 0, 0.104, 0)
+Reload.Size = UDim2.new(0, 194, 0, 32)
+Reload.TextScaled = true
+Reload.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+Reload.Text = "Instant reload"
+Reload.Visible = true
+
+local uicreload = Instance.new("UICorner")
+uicreload.Parent = Reload
+uicreload.CornerRadius = UDim.new(0, 8)
+
+local reloadHow = Instance.new("ImageLabel")
+reloadHow.Parent = Reload
+reloadHow.Name = "how"
+reloadHow.Position = UDim2.new(1.077, 0, 0, 0)
+reloadHow.Size = UDim2.new(0, 32, 0, 32)
+reloadHow.Image = "rbxassetid://75772970732380"
+reloadHow.Visible = true
+
+local uicreloadhow = Instance.new("UICorner")
+uicreloadhow.Parent = reloadHow
+uicreloadhow.CornerRadius = UDim.new(8, 8)
+
+local reloadControl = Instance.new("Frame")
+reloadControl.Parent = Reload
+reloadControl.Name = "Control"
+reloadControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+reloadControl.Position = UDim2.new(1.309, 0, 0, 0)
+reloadControl.Size = UDim2.new(0, 58, 0, 32)
+reloadControl.Visible = true
+
+local uicreloadcontrol = Instance.new("UICorner")
+uicreloadcontrol.Parent = reloadControl
+uicreloadcontrol.CornerRadius = UDim.new(8, 8)
+
+local reloadTurn = Instance.new("TextButton")
+reloadTurn.Parent = reloadControl
+reloadTurn.Name = "turn"
+reloadTurn.BackgroundColor3 = Color3.new(255, 0, 0)
+reloadTurn.Position = UDim2.new(0, 0, 0, 0)
+reloadTurn.Size = UDim2.new(0, 35, 0, 32)
+reloadTurn.Text = ""
+reloadTurn.Visible = true
+
+local uicreloadturn = Instance.new("UICorner")
+uicreloadturn.Parent = reloadTurn
+uicreloadturn.CornerRadius = UDim.new(8, 8)
+
+local Hitbox = Instance.new("TextLabel")
+Hitbox.Parent = MainMenu
+Hitbox.Name = "hitbox"
+Hitbox.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+Hitbox.Position = UDim2.new(0.016, 0, 0.187, 0)
+Hitbox.Size = UDim2.new(0, 194, 0, 32)
+Hitbox.TextScaled = true
+Hitbox.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+Hitbox.Text = "Hitbox expander"
+Hitbox.Visible = true
+
+local uichitbox = Instance.new("UICorner")
+uichitbox.Parent = Hitbox
+uichitbox.CornerRadius = UDim.new(0, 8)
+
+local hitboxHow = Instance.new("ImageLabel")
+hitboxHow.Parent = Hitbox
+hitboxHow.Name = "how"
+hitboxHow.Position = UDim2.new(1.077, 0, 0, 0)
+hitboxHow.Size = UDim2.new(0, 32, 0, 32)
+hitboxHow.Image = "rbxassetid://75772970732380"
+hitboxHow.Visible = true
+
+local uichitboxhow = Instance.new("UICorner")
+uichitboxhow.Parent = hitboxHow
+uichitboxhow.CornerRadius = UDim.new(8, 8)
+
+local hitboxControl = Instance.new("Frame")
+hitboxControl.Parent = Hitbox
+hitboxControl.Name = "Control"
+hitboxControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+hitboxControl.Position = UDim2.new(1.309, 0, 0, 0)
+hitboxControl.Size = UDim2.new(0, 58, 0, 32)
+hitboxControl.Visible = true
+
+local uichitboxcontrol = Instance.new("UICorner")
+uichitboxcontrol.Parent = hitboxControl
+uichitboxcontrol.CornerRadius = UDim.new(8, 8)
+
+local hitboxTurn = Instance.new("TextButton")
+hitboxTurn.Parent = hitboxControl
+hitboxTurn.Name = "turn"
+hitboxTurn.BackgroundColor3 = Color3.new(255, 0, 0)
+hitboxTurn.Position = UDim2.new(0, 0, 0, 0)
+hitboxTurn.Size = UDim2.new(0, 35, 0, 32)
+hitboxTurn.Text = ""
+hitboxTurn.Visible = true
+
+local uichitboxturn = Instance.new("UICorner")
+uichitboxturn.Parent = hitboxTurn
+uichitboxturn.CornerRadius = UDim.new(8, 8)
+
 local Commands = {
       leave = function()
             game:Shutdown()
@@ -1501,55 +1670,82 @@ local Commands = {
       end,
 }
 
-function antiflingL()
-      run.Stepped:Connect(function()
-            for _, a in pairs(plrs:GetPlayers()) do
-                  if a ~= me then
-                        local char = a.Character or a.CharacterAdded:Wait()
-                        if char then
-                              for _, b in pairs(char:GetChildren()) do
-                                    if b:IsA("BasePart") then
-                                          if functions.anti_flingF == true then
-                                                b.CanCollide = false
-                                                b.CanTouch = false
-                                                b.Massless = true
-                                          else
-                                                b.CanCollide = true
-                                                b.CanTouch = true
-                                                b.Massless = false
-                                          end
-                                    end
+function hitboxL()
+      function resize(plr)
+            local function applyChanges(head)
+                  local oldSize = Vector3.new(1.2, 1, 1)
+                  local newSize = Vector3.new(6.5, 6.5, 6.5)
+                  while run.Stepped:Wait() do
+                        if functions.hitbox_expanderF then
+                              if head.Size ~= newSize then
+                                    head.Size = newSize
+                              end
+                              if not head.Massless then
+                                    head.Massless = true
+                              end
+                              if head.Transparency ~= 0.5 then
+                                    head.Transparency = 0.5
+                              end
+                        else
+                              if head.Size ~= oldSize then
+                                    head.Size = oldSize
+                              end
+                              if head.Massless then
+                                    head.Massless = false
+                              end
+                              if head.Transparency ~= 0 then
+                                    head.Transparency = 0
                               end
                         end
                   end
             end
-            plrs.PlayerAdded:Connect(function(plr)
-                  plr.CharacterAdded:Connect(function(charadd)
-                        for _, obj in pairs(charadd:GetChildren()) do
-                              if obj:IsA("BasePart") then
-                                    if functions.anti_flingF == true then
-                                          obj.CanCollide = false
-                                          obj.CanTouch = false
-                                          obj.Massless = true
-                                    else
-                                          obj.CanCollide = true
-                                          obj.CanTouch = true
-                                          obj.Massless = false
-                                    end
-                              end
-                        end
-                  end)
+            local function processCharacter(character)
+                  local head = character:WaitForChild("Head", 5)
+                  if head then
+                        spawn(function()
+                              applyChanges(head)
+                        end)
+                  end
+            end
+            plr.CharacterAdded:Connect(function(character)
+                  processCharacter(character)
             end)
-            local mychar2 = me.Character or me.CharacterAdded:Wait()
-            if mychar2 then
-                  for _, a in pairs(mychar2:GetChildren()) do
-                        if a:IsA("BasePart") then
-                              a.CanCollide = false
-                              a.CanTouch = false
+            if plr.Character then
+                  processCharacter(plr.Character)
+            end
+      end
+      function check()
+            for _, a in pairs(plrs:GetPlayers()) do
+                  if a ~= me then
+                        resize(a)
+                  end
+            end
+      end
+      plrs.PlayerAdded:Connect(function(added)
+            resize(added)
+      end)
+      check()
+end
+
+function instantreloadL()
+      local gunR_remote = game:GetService("ReplicatedStorage").Events.GNX_R
+      run.RenderStepped:Connect(function()
+            if functions.instant_reloadF then
+                  local tool = me.Character:FindFirstChildOfClass("Tool")
+                  if tool then
+                        if tool:FindFirstChild("IsGun") then
+                              gunR_remote:FireServer(tick(), "KLWE89U0", tool);
+                              gunR_remote:FireServer(tick(), "KLWE89U0", tool);
                         end
+                  else
+                        return
                   end
             end
       end)
+end
+
+function antiflingL()
+      ConsoleText("this function is disabled", "text")
 end
 
 function infpepperL(value)
@@ -1653,32 +1849,51 @@ function fastpickupL()
 end
 
 function highlightL()
-      ConsoleText("this function is disabled.", "text")
+      local function isPlayerVisible(player)
+            if player == plrs.LocalPlayer then return false end
+
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                  local _, onScreen = camera:WorldToViewportPoint(character.HumanoidRootPart.Position)
+                  return onScreen
+            end
+
+            return false
+      end
+
+      local function updateHighlights()
+            for _, player in pairs(plrs:GetPlayers()) do
+                  local character = player.Character
+                  if character then
+                        local highlight = character:FindFirstChildOfClass("Highlight")
+                        if functions.highlightF then
+                              if isPlayerVisible(player) then
+                                    if not highlight then
+                                          highlight = Instance.new("Highlight")
+                                          highlight.Parent = character
+                                          highlight.FillTransparency = 1
+                                    end
+                              else
+                                    if highlight then
+                                          highlight:Destroy()
+                                    end
+                              end
+                        else
+                              if highlight then
+                                    highlight:Destroy()
+                              end
+                        end
+                  end
+            end
+      end
+
+      while run.Heartbeat:Wait() do
+            updateHighlights()
+      end
 end
 
 function aimbotL(value)
-      
       local button
-      
-      if value == true then
-            button = Instance.new("TextButton")
-            button.Parent = Gui
-            button.BackgroundColor3 = Color3.new(0, 0, 0)
-            button.BackgroundTransparency = 0
-            button.Size = UDim2.new(0, 45, 0, 45)
-            button.Position = UDim2.new(0.691, 0, 0.35, 0)
-            button.Text = "Aim"
-            button.TextColor3 = Color3.new(1, 1, 1)
-            button.Visible = true
-            
-            local ucba = Instance.new("UICorner")
-
-            ucba.Parent = button
-            ucba.CornerRadius = UDim.new(8, 8)
-      else
-            button:Destroy()
-      end
-      
       local aimpart = "Head"
       local target = nil
       local radius = 150
@@ -1690,14 +1905,40 @@ function aimbotL(value)
       local predict = 13
       local offset = Vector3.new(0, 0.4, 0)
 
-      remotes.circle = Drawing.new("Circle")
-      remotes.circle.Color = Color3.fromRGB(255, 0, 0)
-      remotes.circle.Thickness = 2
-      remotes.circle.NumSides = 50
-      remotes.circle.Radius = radius
-      remotes.circle.Filled = false
-      remotes.circle.Visible = true
-      remotes.circle.Position = UDim2.new(0.42, 0, 0.359, 0)
+      if value == true then
+            button = Instance.new("TextButton")
+            button.Parent = Gui
+            button.BackgroundColor3 = Color3.new(0, 0, 0)
+            button.BackgroundTransparency = 0
+            button.Size = UDim2.new(0, 45, 0, 45)
+            button.Position = UDim2.new(0.691, 0, 0.35, 0)
+            button.Text = "Aim"
+            button.TextColor3 = Color3.new(1, 1, 1)
+            button.Visible = true
+
+            local ucba = Instance.new("UICorner")
+            ucba.Parent = button
+            ucba.CornerRadius = UDim.new(8, 8)
+
+            remotes.circle = Drawing.new("Circle")
+            remotes.circle.Color = Color3.fromRGB(255, 0, 0)
+            remotes.circle.Thickness = 2
+            remotes.circle.NumSides = 50
+            remotes.circle.Radius = radius
+            remotes.circle.Filled = false
+            remotes.circle.Visible = true
+            remotes.circle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+      else
+            if button then
+                  button:Destroy()
+                  button = nil
+            end
+            if remotes.circle then
+                  remotes.circle:Remove()
+                  remotes.circle = nil
+            end
+            return
+      end
 
       local function getClosestTarget()
             local closest, closestDist = nil, radius
@@ -1705,7 +1946,7 @@ function aimbotL(value)
                   if player ~= me and player.Character and player.Character:FindFirstChild(aimpart) then
                         local pos, onScreen = camera:WorldToViewportPoint(player.Character[aimpart].Position)
                         if onScreen then
-                              local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(input:GetMouseLocation().X, input:GetMouseLocation().Y)).Magnitude
+                              local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)).Magnitude
                               if distance < closestDist then
                                     closestDist = distance
                                     closest = player
@@ -1715,9 +1956,9 @@ function aimbotL(value)
             end
             return closest
       end
-      
+
       button.MouseButton1Click:Connect(function()
-            if pressed == true then
+            if pressed then
                   pressed = false
                   aimtarget = nil
             else
@@ -1725,7 +1966,7 @@ function aimbotL(value)
                   aimtarget = getClosestTarget()
             end
       end)
-      
+
       run.RenderStepped:Connect(function()
             if FirstPerson then
                   local magnitude = (camera.Focus.p - camera.CFrame.p).Magnitude
@@ -1742,6 +1983,9 @@ function aimbotL(value)
                         end
                         camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.p, targetPosition), 0.9)
                   end
+            end
+            if remotes.circle then
+                  remotes.circle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
             end
       end)
 end
@@ -1940,6 +2184,57 @@ TrollList.MouseButton1Click:Connect(function()
       end
 end)
 
+hitboxTurn.MouseButton1Click:Connect(function()
+      if functions.hitbox_expanderF == false then
+            functions.hitbox_expanderF = true
+            hitboxinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            hitboxanim1 = tween:Create(hitboxTurn, hitboxinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            hitboxanim1:Play()
+            hitboxanim1.Completed:Connect(function()
+                  hitboxTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+            end)
+            hitboxL()
+      elseif functions.hitbox_expanderF == true then
+            functions.hitbox_expanderF = false
+            hitboxinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            hitboxanim2 = tween:Create(hitboxTurn, hitboxinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            hitboxanim2:Play()
+            hitboxanim2.Completed:Connect(function()
+                  hitboxTurn.BackgroundColor3 = Color3.new(1, 0, 0)
+            end)
+      end
+end)
+
+reloadTurn.MouseButton1Click:Connect(function()
+      if functions.instant_reloadF == false then
+            functions.instant_reloadF = true
+            reloadinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            reloadanim1 = tween:Create(reloadTurn, reloadinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            reloadanim1:Play()
+            reloadanim1.Completed:Connect(function()
+                  reloadTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+            end)
+            instantreloadL()
+      elseif functions.instant_reloadF == true then
+            functions.instant_reloadF = false
+            reloadinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            reloadanim2 = tween:Create(reloadTurn, reloadinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            reloadanim2:Play()
+            reloadanim2.Completed:Connect(function()
+                  reloadTurn.BackgroundColor3 = Color3.new(1, 0, 0)
+            end)
+      end
+end)
+
+adonisLoad.MouseButton1Click:Connect(function()
+      if remotes.adonis_pressed == false then
+            remotes.adonis_pressed = true
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua",true))()
+      else
+            return nil
+      end
+end)
+
 antiflingTurn.MouseButton1Click:Connect(function()
       if functions.anti_flingF == false then
             functions.anti_flingF = true
@@ -1977,7 +2272,7 @@ infpepperTurn.MouseButton1Click:Connect(function()
             infpepperanim2 = tween:Create(infpepperTurn, infpepperinfo2, {Position = UDim2.new(0, 0, 0, 0)})
             infpepperanim2:Play()
             infpepperanim2.Completed:Connect(function()
-                  infpepperTurn.BackgroundColor3 = Color3.new(0.517647, 0, 0)
+                  infpepperTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
             infpepperL(false)
       end
@@ -1999,7 +2294,7 @@ glassarmsTurn.MouseButton1Click:Connect(function()
             glassarmsanim2 = tween:Create(glassarmsTurn, glassarmsinfo2, {Position = UDim2.new(0, 0, 0, 0)})
             glassarmsanim2:Play()
             glassarmsanim2.Completed:Connect(function()
-                  glassarmsTurn.BackgroundColor3 = Color3.new(0.517647, 0, 0)
+                  glassarmsTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
             glassarmsL(false)
       end
@@ -2191,37 +2486,6 @@ nofalldamageTurn.MouseButton1Click:Connect(function()
             forceField = char2:FindFirstChildOfClass("ForceField")
             if forceField then
                   forceField:Destroy()
-            end
-      end
-end)
-highlightTurn.MouseButton1Click:Connect(function()
-      if functions.highlightF == false then
-            functions.highlightF = true
-            highlightinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            highlightanim1 = tween:Create(highlightTurn, highlightinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
-            highlightanim1:Play()
-            highlightanim1.Completed:Connect(function()
-                  highlightTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
-            end)
-            highlightL()
-      elseif functions.highlightF == true then
-            functions.highlightF = false
-            highlightinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            highlightanim2 = tween:Create(highlightTurn, highlightinfo2, {Position = UDim2.new(0, 0, 0, 0)})
-            highlightanim2:Play()
-            highlightanim2.Completed:Connect(function()
-                  highlightTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-            end)
-            for _, a in pairs(plrs:GetPlayers()) do
-                  if a ~= me then
-                        char = a.Character
-                        if char then
-                              chams = char:FindFirstChildOfClass("Highlight")
-                              if chams then
-                                    chams:Destroy()
-                              end
-                        end
-                  end
             end
       end
 end)
@@ -2421,13 +2685,11 @@ input.InputChanged:Connect(function(input1)
       end
 end)
 
-me.Chatted:Connect(function(msg)
-      if msg == "menu" then
-            if Gui.Enabled == true then
-                  Gui.Enabled = false
-            else
-                  Gui.Enabled = true
-            end
+OCmenuButton.MouseButton1Click:Connect(function()
+      if dragg.Visible == true then
+            dragg.Visible = false
+      else
+            dragg.Visible = true
       end
 end)
 
