@@ -2383,6 +2383,7 @@ function infstaminaL()
                         r:Disconnect()
                   end)
                   me.CharacterAdded:Connect(function()
+                        wait(2)
                         get()
                         r = game:GetService("RunService").RenderStepped:Connect(function()
                               for _, a in pairs(stamina) do
