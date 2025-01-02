@@ -2348,16 +2348,53 @@ end
 
 function infstaminaL()
       local oldStamina
-      oldStamina =
-            hookfunction(
-                  getupvalue(getrenv()._G.S_Take, 2),
-                  function(v1, ...)
-                        if (functions.infstaminaF) then 
-                              v1 = 0
+      local succes, no = pcall(function()
+            oldStamina =
+                  hookfunction(
+                        getupvalue(getrenv()._G.S_Take, 2),
+                        function(v1, ...)
+                              if (functions.infstaminaF) then 
+                                    v1 = 0
+                              end
+                              return oldStamina(v1, ...)
                         end
-                        return oldStamina(v1, ...)
+                  )
+      end)
+      if not succes then
+            local s, n = pcall(function()
+                  local stamina = {}
+                  local char = me.Character or me.CharacterAdded:Wait()
+                  local hum = char:FindFirstChildOfClass("Humanoid")
+                  function get()
+                        for index, value in pairs(getgc(true)) do
+                              if type(value) == "table" and rawget(value, "S") then
+                                    stamina[#stamina + 1] = value
+                              end
+                        end
                   end
-            )
+                  get()
+                  local r
+                  r = game:GetService("RunService").RenderStepped:Connect(function()
+                        for _, a in pairs(stamina) do
+                              a.S = 100
+                        end
+                  end)
+                  hum.Died:Connect(function()
+                        r:Disconnect()
+                  end)
+                  me.CharacterAdded:Connect(function()
+                        get()
+                        r = game:GetService("RunService").RenderStepped:Connect(function()
+                              for _, a in pairs(stamina) do
+                                    a.S = 100
+                              end
+                        end)
+                  end)
+            end)
+            if not s then
+                  ConsoleText("Patched or you exploit not support", "error")
+            end
+      end
 end
 
 function fullbrightL(value)
