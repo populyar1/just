@@ -7,13 +7,38 @@ local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 local camera = game.Workspace.CurrentCamera
 
+_G.Keybind = Enum.KeyCode.Insert
+local ignore_binds = {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.D, Enum.KeyCode.S, Enum.KeyCode.F9, Enum.KeyCode.F12, Enum.KeyCode.Tab, Enum.KeyCode.Space, Enum.KeyCode.Backspace, Enum.KeyCode.LeftControl, Enum.KeyCode.LeftShift, Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2, Enum.UserInputType.MouseButton3}
+
+local FOLDER = {
+      Function_Guns = false,
+      Function_Melees = false,
+      Guns = {"G-17"},
+      Melees = {},
+      Skins = {
+            GUNS = {
+                  {id = "rbxassetid://15707661222", gun = "G-17"},
+            },
+            MELEES = {
+                  
+            },
+      },
+      Selection = {
+            GUNS = {
+                  ["G-17"] = false,   
+            },
+            MELEES = {
+                  
+            }
+      }
+}
+
 local cmds = {"leave", "reset", "clear", "close", "reload"}
 
 local functions = {
       FullbrightF = false;
       AutoOpenDoorsF = false;
       NoBarriersF = false;
-      NoGrinderF = false;
       anti_voidF = nil;
       flyF = nil;
       anti_flingF = false;
@@ -38,6 +63,7 @@ local remotes = {
       circle = nil;
       circle_pos = nil;
       adonis_pressed = false;
+      OCmenukeybind = false;
 }
 
 local ChatFrame = me.PlayerGui:WaitForChild("Chat").Frame
@@ -291,7 +317,7 @@ SkinsList.Position = UDim2.new(0.054, 0, 0.352, 0)
 SkinsList.Size = UDim2.new(0, 176, 0, 38)
 SkinsList.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
 SkinsList.TextScaled = true
-SkinsList.Text = "Skins (soon)"
+SkinsList.Text = "Skins"
 SkinsList.Visible = true
 
 uicskinsl = Instance.new("UICorner")
@@ -429,6 +455,14 @@ TrollMenu.Position = UDim2.new(0.209, 0, 0.01, 0)
 TrollMenu.Size = UDim2.new(0, 774, 0, 598)
 TrollMenu.Visible = false
 
+local SkinsMenu = Instance.new("Frame")
+SkinsMenu.Parent = Menus
+SkinsMenu.Name = "Skins"
+SkinsMenu.BackgroundTransparency = 1
+SkinsMenu.Position = UDim2.new(0.209, 0, 0.01, 0)
+SkinsMenu.Size = UDim2.new(0, 774, 0, 598)
+SkinsMenu.Visible = false
+
 local Fullbright = Instance.new("TextLabel")
 Fullbright.Parent = WorldMenu
 Fullbright.Name = "Fullbright"
@@ -461,27 +495,41 @@ uicfullbrighthow.CornerRadius = UDim.new(8, 8)
 local FullbrightControl = Instance.new("Frame")
 FullbrightControl.Parent = Fullbright
 FullbrightControl.Name = "Control"
-FullbrightControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+FullbrightControl.BackgroundColor3 = Color3.new(0, 0, 0)
 FullbrightControl.Position = UDim2.new(1.309, 0, 0, 0)
-FullbrightControl.Size = UDim2.new(0, 58, 0, 32)
+FullbrightControl.Size = UDim2.new(0, 81, 0, 35)
 FullbrightControl.Visible = true
 
 uicfullbrightcontrol = Instance.new("UICorner")
 uicfullbrightcontrol.Parent = FullbrightControl
 uicfullbrightcontrol.CornerRadius = UDim.new(8, 8)
 
+uisfullbrightcontrol = Instance.new("UIStroke")
+uisfullbrightcontrol.Parent = FullbrightControl
+uisfullbrightcontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisfullbrightcontrol.Color = Color3.new(1, 1, 1)
+uisfullbrightcontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisfullbrightcontrol.Thickness = 1
+
 local FullbrightTurn = Instance.new("TextButton")
 FullbrightTurn.Parent = FullbrightControl
 FullbrightTurn.Name = "turn"
 FullbrightTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-FullbrightTurn.Position = UDim2.new(0, 0, 0, 0)
-FullbrightTurn.Size = UDim2.new(0, 35, 0, 32)
+FullbrightTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+FullbrightTurn.Size = UDim2.new(0, 30, 0, 30)
 FullbrightTurn.Text = ""
 FullbrightTurn.Visible = true
 
 uicfullbrightturn = Instance.new("UICorner")
 uicfullbrightturn.Parent = FullbrightTurn
 uicfullbrightturn.CornerRadius = UDim.new(8, 8)
+
+uisfullbrightturn = Instance.new("UIStroke")
+uisfullbrightturn.Parent = FullbrightTurn
+uisfullbrightturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisfullbrightturn.Color = Color3.new(1, 1, 1)
+uisfullbrightturn.LineJoinMode = Enum.LineJoinMode.Round
+uisfullbrightturn.Thickness = 1
 
 local open_doors = Instance.new("TextLabel")
 open_doors.Parent = WorldMenu
@@ -513,27 +561,41 @@ uicopen_doorshow.CornerRadius = UDim.new(8, 8)
 local open_doorsControl = Instance.new("Frame")
 open_doorsControl.Parent = open_doors
 open_doorsControl.Name = "Control"
-open_doorsControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+open_doorsControl.BackgroundColor3 = Color3.new(0, 0, 0)
 open_doorsControl.Position = UDim2.new(1.309, 0, 0, 0)
-open_doorsControl.Size = UDim2.new(0, 58, 0, 32)
+open_doorsControl.Size = UDim2.new(0, 81, 0, 35)
 open_doorsControl.Visible = true
 
 uicopen_doorscontrol = Instance.new("UICorner")
 uicopen_doorscontrol.Parent = open_doorsControl
 uicopen_doorscontrol.CornerRadius = UDim.new(8, 8)
 
+uisopen_doorscontrol = Instance.new("UIStroke")
+uisopen_doorscontrol.Parent = open_doorsControl
+uisopen_doorscontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisopen_doorscontrol.Color = Color3.new(1, 1, 1)
+uisopen_doorscontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisopen_doorscontrol.Thickness = 1
+
 local TurnOpen_doors = Instance.new("TextButton")
 TurnOpen_doors.Parent = open_doorsControl
 TurnOpen_doors.Name = "turn"
 TurnOpen_doors.BackgroundColor3 = Color3.new(1, 0, 0)
-TurnOpen_doors.Position = UDim2.new(0, 0, 0, 0)
-TurnOpen_doors.Size = UDim2.new(0, 35, 0, 32)
+TurnOpen_doors.Position = UDim2.new(0.046, 0, 0.071, 0)
+TurnOpen_doors.Size = UDim2.new(0, 30, 0, 30)
 TurnOpen_doors.Text = ""
 TurnOpen_doors.Visible = true
 
 uicturnopen_doors = Instance.new("UICorner")
 uicturnopen_doors.Parent = TurnOpen_doors
 uicturnopen_doors.CornerRadius = UDim.new(8, 8)
+
+uisturnopen_doors = Instance.new("UIStroke")
+uisturnopen_doors.Parent = TurnOpen_doors
+uisturnopen_doors.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisturnopen_doors.Color = Color3.new(1, 1, 1)
+uisturnopen_doors.LineJoinMode = Enum.LineJoinMode.Round
+uisturnopen_doors.Thickness = 1
 
 local nobarriers = Instance.new("TextLabel")
 nobarriers.Parent = WorldMenu
@@ -566,21 +628,28 @@ uicnobarriershow.CornerRadius = UDim.new(8, 8)
 local nobarriersControl = Instance.new("Frame")
 nobarriersControl.Parent = nobarriers
 nobarriersControl.Name = "Control"
-nobarriersControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+nobarriersControl.BackgroundColor3 = Color3.new(0, 0, 0)
 nobarriersControl.Position = UDim2.new(1.309, 0, 0, 0)
-nobarriersControl.Size = UDim2.new(0, 58, 0, 32)
+nobarriersControl.Size = UDim2.new(0, 81, 0, 35)
 nobarriersControl.Visible = true
 
 uicnobarrierscontrol = Instance.new("UICorner")
 uicnobarrierscontrol.Parent = nobarriersControl
 uicnobarrierscontrol.CornerRadius = UDim.new(8, 8)
 
+uisnobarrierscontrol = Instance.new("UIStroke")
+uisnobarrierscontrol.Parent = nobarriersControl
+uisnobarrierscontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisnobarrierscontrol.Color = Color3.new(1, 1, 1)
+uisnobarrierscontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisnobarrierscontrol.Thickness = 1
+
 local nobarriersTurn = Instance.new("TextButton")
 nobarriersTurn.Parent = nobarriersControl
 nobarriersTurn.Name = "turn"
 nobarriersTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-nobarriersTurn.Position = UDim2.new(0, 0, 0, 0)
-nobarriersTurn.Size = UDim2.new(0, 35, 0, 32)
+nobarriersTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+nobarriersTurn.Size = UDim2.new(0, 30, 0, 30)
 nobarriersTurn.Text = ""
 nobarriersTurn.Visible = true
 
@@ -588,120 +657,12 @@ uicnobarriersturn = Instance.new("UICorner")
 uicnobarriersturn.Parent = nobarriersTurn
 uicnobarriersturn.CornerRadius = UDim.new(8, 8)
 
-local nogrinder = Instance.new("TextLabel")
-nogrinder.Parent = WorldMenu
-nogrinder.Name = "nogrinder"
-nogrinder.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-nogrinder.Position = UDim2.new(0.016, 0, 0.281, 0)
-nogrinder.Size = UDim2.new(0, 194, 0, 32)
-nogrinder.TextScaled = true
-nogrinder.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
-nogrinder.Text = "No grinder"
-nogrinder.Visible = true
-
-uicnogrinder = Instance.new("UICorner")
-uicnogrinder.Parent = nogrinder
-uicnogrinder.CornerRadius = UDim.new(0, 8)
-
-local nogrinderHow = Instance.new("ImageLabel")
-nogrinderHow.Parent = nogrinder
-nogrinderHow.Name = "how"
-nogrinderHow.Position = UDim2.new(1.077, 0, 0, 0)
-nogrinderHow.Size = UDim2.new(0, 32, 0, 32)
-nogrinderHow.Image = "rbxassetid://75772970732380"
-nogrinderHow.Visible = true
-
-uicnogrinderhow = Instance.new("UICorner")
-uicnogrinderhow.Parent = nogrinderHow
-uicnogrinderhow.CornerRadius = UDim.new(8, 8)
-
-local nogrinderControl = Instance.new("Frame")
-nogrinderControl.Parent = nogrinder
-nogrinderControl.Name = "Control"
-nogrinderControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
-nogrinderControl.Position = UDim2.new(1.309, 0, 0, 0)
-nogrinderControl.Size = UDim2.new(0, 58, 0, 32)
-nogrinderControl.Visible = true
-
-uicnogrindercontrol = Instance.new("UICorner")
-uicnogrindercontrol.Parent = nogrinderControl
-uicnogrindercontrol.CornerRadius = UDim.new(8, 8)
-
-local nogrinderTurn = Instance.new("TextButton")
-nogrinderTurn.Parent = nogrinderControl
-nogrinderTurn.Name = "turn"
-nogrinderTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-nogrinderTurn.Position = UDim2.new(0, 0, 0, 0)
-nogrinderTurn.Size = UDim2.new(0, 35, 0, 32)
-nogrinderTurn.Text = ""
-nogrinderTurn.Visible = true
-
-uicnogrinderturn = Instance.new("UICorner")
-uicnogrinderturn.Parent = nogrinderTurn
-uicnogrinderturn.CornerRadius = UDim.new(8, 8)
-
-local antiVoid = Instance.new("TextLabel")
-antiVoid.Parent = WorldMenu
-antiVoid.Name = "Anti-void"
-antiVoid.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-antiVoid.Position = UDim2.new(0.016, 0, 0.363, 0)
-antiVoid.Size = UDim2.new(0, 194, 0, 32)
-antiVoid.TextScaled = true
-antiVoid.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
-antiVoid.Text = "Anti-void"
-antiVoid.Visible = true
-
-uicantivoid = Instance.new("UICorner")
-uicantivoid.Parent = antiVoid
-uicantivoid.CornerRadius = UDim.new(0, 8)
-
-local antivoidHow = Instance.new("ImageLabel")
-antivoidHow.Parent = antiVoid
-antivoidHow.Name = "how"
-antivoidHow.Position = UDim2.new(1.077, 0, 0, 0)
-antivoidHow.Size = UDim2.new(0, 32, 0, 32)
-antivoidHow.Image = "rbxassetid://75772970732380"
-antivoidHow.Visible = true
-
-uicantivoidhow = Instance.new("UICorner")
-uicantivoidhow.Parent = antivoidHow
-uicantivoidhow.CornerRadius = UDim.new(8, 8)
-
-local antivoidControl = Instance.new("Frame")
-antivoidControl.Parent = antiVoid
-antivoidControl.Name = "Control"
-antivoidControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
-antivoidControl.Position = UDim2.new(1.309, 0, 0, 0)
-antivoidControl.Size = UDim2.new(0, 58, 0, 32)
-antivoidControl.Visible = true
-
-uicantivoidcontrol = Instance.new("UICorner")
-uicantivoidcontrol.Parent = antivoidControl
-uicantivoidcontrol.CornerRadius = UDim.new(8, 8)
-
-local antivoidturn = Instance.new("TextButton")
-antivoidturn.Parent = antivoidControl
-antivoidturn.Name = "turn"
-antivoidturn.BackgroundColor3 = Color3.new(1, 0, 0)
-antivoidturn.Position = UDim2.new(0, 0, 0, 0)
-antivoidturn.Size = UDim2.new(0, 35, 0, 32)
-antivoidturn.Text = ""
-antivoidturn.Visible = true
-
-uicantivoidturn = Instance.new("UICorner")
-uicantivoidturn.Parent = antivoidturn
-uicantivoidturn.CornerRadius = UDim.new(8, 8)
-
-local antivoidSoon = Instance.new("TextLabel")
-antivoidSoon.Parent = antiVoid
-antivoidSoon.Name = "soon"
-antivoidSoon.BackgroundTransparency = 1
-antivoidSoon.Position = UDim2.new(1.656, 0, 0, 0)
-antivoidSoon.Size = UDim2.new(0, 89, 0, 32)
-antivoidSoon.TextScaled = true
-antivoidSoon.TextColor3 = Color3.new(1, 1, 1)
-antivoidSoon.Text = "- soon"
-antivoidSoon.Visible = true
+uisnobarriersturn = Instance.new("UIStroke")
+uisnobarriersturn.Parent = nobarriersTurn
+uisnobarriersturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisnobarriersturn.Color = Color3.new(1, 1, 1)
+uisnobarriersturn.LineJoinMode = Enum.LineJoinMode.Round
+uisnobarriersturn.Thickness = 1
 
 local FOV = Instance.new("TextLabel")
 FOV.Parent = PlayerMenu
@@ -926,21 +887,28 @@ uicflyhow.CornerRadius = UDim.new(8, 8)
 local flyControl = Instance.new("Frame")
 flyControl.Parent = fly
 flyControl.Name = "Control"
-flyControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+flyControl.BackgroundColor3 = Color3.new(0, 0, 0)
 flyControl.Position = UDim2.new(1.309, 0, 0, 0)
-flyControl.Size = UDim2.new(0, 58, 0, 32)
+flyControl.Size = UDim2.new(0, 81, 0, 35)
 flyControl.Visible = true
 
 uicflycontrol = Instance.new("UICorner")
 uicflycontrol.Parent = flyControl
 uicflycontrol.CornerRadius = UDim.new(8, 8)
 
+uisflycontrol = Instance.new("UIStroke")
+uisflycontrol.Parent = flyControl
+uisflycontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisflycontrol.Color = Color3.new(1, 1, 1)
+uisflycontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisflycontrol.Thickness = 1
+
 local flyTurn = Instance.new("TextButton")
 flyTurn.Parent = flyControl
 flyTurn.Name = "turn"
 flyTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-flyTurn.Position = UDim2.new(0, 0, 0, 0)
-flyTurn.Size = UDim2.new(0, 35, 0, 32)
+flyTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+flyTurn.Size = UDim2.new(0, 30, 0, 30)
 flyTurn.Text = ""
 flyTurn.Visible = true
 
@@ -948,12 +916,19 @@ uicflyturn = Instance.new("UICorner")
 uicflyturn.Parent = flyTurn
 uicflyturn.CornerRadius = UDim.new(8, 8)
 
+uisflyturn = Instance.new("UIStroke")
+uisflyturn.Parent = flyTurn
+uisflyturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisflyturn.Color = Color3.new(1, 1, 1)
+uisflyturn.LineJoinMode = Enum.LineJoinMode.Round
+uisflyturn.Thickness = 1
+
 local flySoon = Instance.new("TextLabel")
 flySoon.Parent = fly
 flySoon.Name = "soon"
 flySoon.BackgroundTransparency = 1
 flySoon.BackgroundColor3 = Color3.new(1, 1, 1)
-flySoon.Position = UDim2.new(1.656, 0, 0, 0)
+flySoon.Position = UDim2.new(1.8, 0, 0, 0)
 flySoon.Size = UDim2.new(0, 89, 0, 32)
 flySoon.TextScaled = true
 flySoon.TextColor3 = Color3.new(1, 1, 1)
@@ -990,27 +965,41 @@ uicglassarmsHow.CornerRadius = UDim.new(8, 8)
 local glassarmsControl = Instance.new("Frame")
 glassarmsControl.Parent = GlassArms
 glassarmsControl.Name = "Control"
-glassarmsControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+glassarmsControl.BackgroundColor3 = Color3.new(0, 0, 0)
 glassarmsControl.Position = UDim2.new(1.309, 0, 0, 0)
-glassarmsControl.Size = UDim2.new(0, 58, 0, 32)
+glassarmsControl.Size = UDim2.new(0, 81, 0, 35)
 glassarmsControl.Visible = true
 
 uicglassarmsControl = Instance.new("UICorner")
 uicglassarmsControl.Parent = glassarmsControl
 uicglassarmsControl.CornerRadius = UDim.new(8, 8)
 
+uisglassaramscontrol = Instance.new("UIStroke")
+uisglassaramscontrol.Parent = glassarmsControl
+uisglassaramscontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisglassaramscontrol.Color = Color3.new(1, 1, 1)
+uisglassaramscontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisglassaramscontrol.Thickness = 1
+
 local glassarmsTurn = Instance.new("TextButton")
 glassarmsTurn.Parent = glassarmsControl
 glassarmsTurn.Name = "turn"
 glassarmsTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-glassarmsTurn.Position = UDim2.new(0, 0, 0, 0)
-glassarmsTurn.Size = UDim2.new(0, 35, 0, 32)
+glassarmsTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+glassarmsTurn.Size = UDim2.new(0, 30, 0, 30)
 glassarmsTurn.Text = ""
 glassarmsTurn.Visible = true
 
 uicglassarmsturn = Instance.new("UICorner")
 uicglassarmsturn.Parent = glassarmsTurn
 uicglassarmsturn.CornerRadius = UDim.new(8, 8)
+
+uisglassaramsturn = Instance.new("UIStroke")
+uisglassaramsturn.Parent = glassarmsTurn
+uisglassaramsturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisglassaramsturn.Color = Color3.new(1, 1, 1)
+uisglassaramsturn.LineJoinMode = Enum.LineJoinMode.Round
+uisglassaramsturn.Thickness = 1
 
 local antifling = Instance.new("TextLabel")
 antifling.Parent = PlayerMenu
@@ -1042,27 +1031,41 @@ uicantiflinghow.CornerRadius = UDim.new(8, 8)
 local antiflingControl = Instance.new("Frame")
 antiflingControl.Parent = antifling
 antiflingControl.Name = "Control"
-antiflingControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+antiflingControl.BackgroundColor3 = Color3.new(0, 0, 0)
 antiflingControl.Position = UDim2.new(1.309, 0, 0, 0)
-antiflingControl.Size = UDim2.new(0, 58, 0, 32)
+antiflingControl.Size = UDim2.new(0, 81, 0, 35)
 antiflingControl.Visible = true
 
 uicantiflingcontrol = Instance.new("UICorner")
 uicantiflingcontrol.Parent = antiflingControl
 uicantiflingcontrol.CornerRadius = UDim.new(8, 8)
 
+uisantiflingcontrol = Instance.new("UIStroke")
+uisantiflingcontrol.Parent = antiflingControl
+uisantiflingcontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisantiflingcontrol.Color = Color3.new(1, 1, 1)
+uisantiflingcontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisantiflingcontrol.Thickness = 1
+
 local antiflingTurn = Instance.new("TextButton")
 antiflingTurn.Parent = antiflingControl
 antiflingTurn.Name = "turn"
 antiflingTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-antiflingTurn.Position = UDim2.new(0, 0, 0, 0)
-antiflingTurn.Size = UDim2.new(0, 35, 0, 32)
+antiflingTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+antiflingTurn.Size = UDim2.new(0, 30, 0, 30)
 antiflingTurn.Text = ""
 antiflingTurn.Visible = true
 
 uicantiflingturn = Instance.new("UICorner")
 uicantiflingturn.Parent = antiflingTurn
 uicantiflingturn.CornerRadius = UDim.new(8, 8)
+
+uisantiflingturn = Instance.new("UIStroke")
+uisantiflingturn.Parent = antiflingTurn
+uisantiflingturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisantiflingturn.Color = Color3.new(1, 1, 1)
+uisantiflingturn.LineJoinMode = Enum.LineJoinMode.Round
+uisantiflingturn.Thickness = 1
 
 local infstamina = Instance.new("TextLabel")
 infstamina.Parent = PlayerMenu
@@ -1094,27 +1097,41 @@ uicinfstaminahow.CornerRadius = UDim.new(8, 8)
 local infstaminaControl = Instance.new("Frame")
 infstaminaControl.Parent = infstamina
 infstaminaControl.Name = "Control"
-infstaminaControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+infstaminaControl.BackgroundColor3 = Color3.new(0, 0, 0)
 infstaminaControl.Position = UDim2.new(1.309, 0, 0, 0)
-infstaminaControl.Size = UDim2.new(0, 58, 0, 32)
+infstaminaControl.Size = UDim2.new(0, 81, 0, 35)
 infstaminaControl.Visible = true
 
 uicinfstaminacontrol = Instance.new("UICorner")
 uicinfstaminacontrol.Parent = infstaminaControl
 uicinfstaminacontrol.CornerRadius = UDim.new(8, 8)
 
+uisinfstaminacontrol = Instance.new("UIStroke")
+uisinfstaminacontrol.Parent = infstaminaControl
+uisinfstaminacontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisinfstaminacontrol.Color = Color3.new(1, 1, 1)
+uisinfstaminacontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisinfstaminacontrol.Thickness = 1
+
 local infstaminaTurn = Instance.new("TextButton")
 infstaminaTurn.Parent = infstaminaControl
 infstaminaTurn.Name = "turn"
 infstaminaTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-infstaminaTurn.Position = UDim2.new(0, 0, 0, 0)
-infstaminaTurn.Size = UDim2.new(0, 35, 0, 32)
+infstaminaTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+infstaminaTurn.Size = UDim2.new(0, 30, 0, 30)
 infstaminaTurn.Text = ""
 infstaminaTurn.Visible = true
 
 uicinfstaminaturn = Instance.new("UICorner")
 uicinfstaminaturn.Parent = infstaminaTurn
 uicinfstaminaturn.CornerRadius = UDim.new(8, 8)
+
+uisinfstaminaturn = Instance.new("UIStroke")
+uisinfstaminaturn.Parent = infstaminaTurn
+uisinfstaminaturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisinfstaminaturn.Color = Color3.new(1, 1, 1)
+uisinfstaminaturn.LineJoinMode = Enum.LineJoinMode.Round
+uisinfstaminaturn.Thickness = 1
 
 local nofalldamage = Instance.new("TextLabel")
 nofalldamage.Parent = PlayerMenu
@@ -1146,27 +1163,41 @@ uicnofalldamagehow.CornerRadius = UDim.new(8, 8)
 local nofalldamageControl = Instance.new("Frame")
 nofalldamageControl.Parent = nofalldamage
 nofalldamageControl.Name = "Control"
-nofalldamageControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+nofalldamageControl.BackgroundColor3 = Color3.new(0, 0, 0)
 nofalldamageControl.Position = UDim2.new(1.309, 0, 0, 0)
-nofalldamageControl.Size = UDim2.new(0, 58, 0, 32)
+nofalldamageControl.Size = UDim2.new(0, 81, 0, 35)
 nofalldamageControl.Visible = true
 
 uicnofalldamagecontrol = Instance.new("UICorner")
 uicnofalldamagecontrol.Parent = nofalldamageControl
 uicnofalldamagecontrol.CornerRadius = UDim.new(8, 8)
 
+uisnofalldamagecontrol = Instance.new("UIStroke")
+uisnofalldamagecontrol.Parent = nofalldamageControl
+uisnofalldamagecontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisnofalldamagecontrol.Color = Color3.new(1, 1, 1)
+uisnofalldamagecontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisnofalldamagecontrol.Thickness = 1
+
 local nofalldamageTurn = Instance.new("TextButton")
 nofalldamageTurn.Parent = nofalldamageControl
 nofalldamageTurn.Name = "turn"
 nofalldamageTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-nofalldamageTurn.Position = UDim2.new(0, 0, 0, 0)
-nofalldamageTurn.Size = UDim2.new(0, 35, 0, 32)
+nofalldamageTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+nofalldamageTurn.Size = UDim2.new(0, 30, 0, 30)
 nofalldamageTurn.Text = ""
 nofalldamageTurn.Visible = true
 
 uicnofalldamageturn = Instance.new("UICorner")
 uicnofalldamageturn.Parent = nofalldamageTurn
 uicnofalldamageturn.CornerRadius = UDim.new(8, 8)
+
+uisnofalldamageturn = Instance.new("UIStroke")
+uisnofalldamageturn.Parent = nofalldamageTurn
+uisnofalldamageturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisnofalldamageturn.Color = Color3.new(1, 1, 1)
+uisnofalldamageturn.LineJoinMode = Enum.LineJoinMode.Round
+uisnofalldamageturn.Thickness = 1
 
 local highlight = Instance.new("TextLabel")
 highlight.Parent = VisualMenu
@@ -1198,27 +1229,41 @@ uichighlighthow.CornerRadius = UDim.new(8, 8)
 local highlightControl = Instance.new("Frame")
 highlightControl.Parent = highlight
 highlightControl.Name = "Control"
-highlightControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+highlightControl.BackgroundColor3 = Color3.new(0, 0, 0)
 highlightControl.Position = UDim2.new(1.309, 0, 0, 0)
-highlightControl.Size = UDim2.new(0, 58, 0, 32)
+highlightControl.Size = UDim2.new(0, 81, 0, 35)
 highlightControl.Visible = true
 
 uichighlightcontrol = Instance.new("UICorner")
 uichighlightcontrol.Parent = highlightControl
 uichighlightcontrol.CornerRadius = UDim.new(8, 8)
 
+uishighlightcontrol = Instance.new("UIStroke")
+uishighlightcontrol.Parent = highlightControl
+uishighlightcontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uishighlightcontrol.Color = Color3.new(1, 1, 1)
+uishighlightcontrol.LineJoinMode = Enum.LineJoinMode.Round
+uishighlightcontrol.Thickness = 1
+
 local highlightTurn = Instance.new("TextButton")
 highlightTurn.Parent = highlightControl
 highlightTurn.Name = "turn"
 highlightTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-highlightTurn.Position = UDim2.new(0, 0, 0, 0)
-highlightTurn.Size = UDim2.new(0, 35, 0, 32)
+highlightTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+highlightTurn.Size = UDim2.new(0, 30, 0, 30)
 highlightTurn.Text = ""
 highlightTurn.Visible = true
 
 uichighlightturn = Instance.new("UICorner")
 uichighlightturn.Parent = highlightTurn
 uichighlightturn.CornerRadius = UDim.new(8, 8)
+
+uishighlightturn = Instance.new("UIStroke")
+uishighlightturn.Parent = highlightTurn
+uishighlightturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uishighlightturn.Color = Color3.new(1, 1, 1)
+uishighlightturn.LineJoinMode = Enum.LineJoinMode.Round
+uishighlightturn.Thickness = 1
 
 local Aimbot = Instance.new("TextLabel")
 Aimbot.Parent = MainMenu
@@ -1250,21 +1295,28 @@ uicaimbothow.CornerRadius = UDim.new(8, 8)
 local aimbotControl = Instance.new("Frame")
 aimbotControl.Parent = Aimbot
 aimbotControl.Name = "Control"
-aimbotControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+aimbotControl.BackgroundColor3 = Color3.new(0, 0, 0)
 aimbotControl.Position = UDim2.new(1.309, 0, 0, 0)
-aimbotControl.Size = UDim2.new(0, 58, 0, 32)
+aimbotControl.Size = UDim2.new(0, 81, 0, 35)
 aimbotControl.Visible = true
 
 uicaimbotcontrol = Instance.new("UICorner")
 uicaimbotcontrol.Parent = aimbotControl
 uicaimbotcontrol.CornerRadius = UDim.new(8, 8)
 
+uisaimbotcontrol = Instance.new("UIStroke")
+uisaimbotcontrol.Parent = aimbotControl
+uisaimbotcontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisaimbotcontrol.Color = Color3.new(1, 1, 1)
+uisaimbotcontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisaimbotcontrol.Thickness = 1
+
 local aimbotTurn = Instance.new("TextButton")
 aimbotTurn.Parent = aimbotControl
 aimbotTurn.Name = "turn"
 aimbotTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-aimbotTurn.Position = UDim2.new(0, 0, 0, 0)
-aimbotTurn.Size = UDim2.new(0, 35, 0, 32)
+aimbotTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+aimbotTurn.Size = UDim2.new(0, 30, 0, 30)
 aimbotTurn.Text = ""
 aimbotTurn.Visible = true
 
@@ -1272,11 +1324,18 @@ uicaimbotturn = Instance.new("UICorner")
 uicaimbotturn.Parent = aimbotTurn
 uicaimbotturn.CornerRadius = UDim.new(8, 8)
 
+uisaimbotturn = Instance.new("UIStroke")
+uisaimbotturn.Parent = aimbotTurn
+uisaimbotturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisaimbotturn.Color = Color3.new(1, 1, 1)
+uisaimbotturn.LineJoinMode = Enum.LineJoinMode.Round
+uisaimbotturn.Thickness = 1
+
 local Fastpickup = Instance.new("TextLabel")
 Fastpickup.Parent = WorldMenu
 Fastpickup.Name = "Fast-pickup"
 Fastpickup.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-Fastpickup.Position = UDim2.new(0.016, 0, 0.444, 0)
+Fastpickup.Position = UDim2.new(0.016, 0, 0.275, 0)
 Fastpickup.Size = UDim2.new(0, 194, 0, 32)
 Fastpickup.TextScaled = true
 Fastpickup.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
@@ -1302,27 +1361,41 @@ uicfastpickuphow.CornerRadius = UDim.new(8, 8)
 local fastpickupControl = Instance.new("Frame")
 fastpickupControl.Parent = Fastpickup
 fastpickupControl.Name = "Control"
-fastpickupControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+fastpickupControl.BackgroundColor3 = Color3.new(0, 0, 0)
 fastpickupControl.Position = UDim2.new(1.309, 0, 0, 0)
-fastpickupControl.Size = UDim2.new(0, 58, 0, 32)
+fastpickupControl.Size = UDim2.new(0, 81, 0, 35)
 fastpickupControl.Visible = true
 
 uicfastpickupcontrol = Instance.new("UICorner")
 uicfastpickupcontrol.Parent = fastpickupControl
 uicfastpickupcontrol.CornerRadius = UDim.new(8, 8)
 
+uisfastpickupcontrol = Instance.new("UIStroke")
+uisfastpickupcontrol.Parent = fastpickupControl
+uisfastpickupcontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisfastpickupcontrol.Color = Color3.new(1, 1, 1)
+uisfastpickupcontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisfastpickupcontrol.Thickness = 1
+
 local fastpickupTurn = Instance.new("TextButton")
 fastpickupTurn.Parent = fastpickupControl
 fastpickupTurn.Name = "turn"
 fastpickupTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-fastpickupTurn.Position = UDim2.new(0, 0, 0, 0)
-fastpickupTurn.Size = UDim2.new(0, 35, 0, 32)
+fastpickupTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+fastpickupTurn.Size = UDim2.new(0, 30, 0, 30)
 fastpickupTurn.Text = ""
 fastpickupTurn.Visible = true
 
 uicfastpickupturn = Instance.new("UICorner")
 uicfastpickupturn.Parent = fastpickupTurn
 uicfastpickupturn.CornerRadius = UDim.new(8, 8)
+
+uisfastpickupturn = Instance.new("UIStroke")
+uisfastpickupturn.Parent = fastpickupTurn
+uisfastpickupturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisfastpickupturn.Color = Color3.new(1, 1, 1)
+uisfastpickupturn.LineJoinMode = Enum.LineJoinMode.Round
+uisfastpickupturn.Thickness = 1
 
 local Lockpick = Instance.new("TextLabel")
 Lockpick.Parent = FarmMenu
@@ -1354,27 +1427,41 @@ uiclockpickhow.CornerRadius = UDim.new(8, 8)
 local lockpickControl = Instance.new("Frame")
 lockpickControl.Parent = Lockpick
 lockpickControl.Name = "Control"
-lockpickControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+lockpickControl.BackgroundColor3 = Color3.new(0, 0, 0)
 lockpickControl.Position = UDim2.new(1.309, 0, 0, 0)
-lockpickControl.Size = UDim2.new(0, 58, 0, 32)
+lockpickControl.Size = UDim2.new(0, 81, 0, 35)
 lockpickControl.Visible = true
 
 uiclockpickcontrol = Instance.new("UICorner")
 uiclockpickcontrol.Parent = lockpickControl
 uiclockpickcontrol.CornerRadius = UDim.new(8, 8)
 
+uislockpickcontrol = Instance.new("UIStroke")
+uislockpickcontrol.Parent = lockpickControl
+uislockpickcontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uislockpickcontrol.Color = Color3.new(1, 1, 1)
+uislockpickcontrol.LineJoinMode = Enum.LineJoinMode.Round
+uislockpickcontrol.Thickness = 1
+
 local lockpickTrun = Instance.new("TextButton")
 lockpickTrun.Parent = lockpickControl
 lockpickTrun.Name = "turn"
 lockpickTrun.BackgroundColor3 = Color3.new(1, 0, 0)
-lockpickTrun.Position = UDim2.new(0, 0, 0, 0)
-lockpickTrun.Size = UDim2.new(0, 35, 0, 32)
+lockpickTrun.Position = UDim2.new(0.046, 0, 0.071, 0)
+lockpickTrun.Size = UDim2.new(0, 30, 0, 30)
 lockpickTrun.Text = ""
 lockpickTrun.Visible = true
 
 uiclockpickturn = Instance.new("UICorner")
 uiclockpickturn.Parent = lockpickTrun
 uiclockpickturn.CornerRadius = UDim.new(8, 8)
+
+uislockpickturn = Instance.new("UIStroke")
+uislockpickturn.Parent = lockpickTrun
+uislockpickturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uislockpickturn.Color = Color3.new(1, 1, 1)
+uislockpickturn.LineJoinMode = Enum.LineJoinMode.Round
+uislockpickturn.Thickness = 1
 
 local ATM = Instance.new("TextLabel")
 ATM.Parent = FarmMenu
@@ -1406,27 +1493,41 @@ uicatmhow.CornerRadius = UDim.new(8, 8)
 local atmControl = Instance.new("Frame")
 atmControl.Parent = ATM
 atmControl.Name = "Control"
-atmControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+atmControl.BackgroundColor3 = Color3.new(0, 0, 0)
 atmControl.Position = UDim2.new(1.309, 0, 0, 0)
-atmControl.Size = UDim2.new(0, 58, 0, 32)
+atmControl.Size = UDim2.new(0, 81, 0, 35)
 atmControl.Visible = true
 
 local uicatmcontrol = Instance.new("UICorner")
 uicatmcontrol.Parent = atmControl
 uicatmcontrol.CornerRadius = UDim.new(8, 8)
 
+local uisatmcontrol = Instance.new("UIStroke")
+uisatmcontrol.Parent = atmControl
+uisatmcontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisatmcontrol.Color = Color3.new(1, 1, 1)
+uisatmcontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisatmcontrol.Thickness = 1
+
 local atmTurn = Instance.new("TextButton")
 atmTurn.Parent = atmControl
 atmTurn.Name = "turn"
 atmTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-atmTurn.Position = UDim2.new(0, 0, 0, 0)
-atmTurn.Size = UDim2.new(0, 35, 0, 32)
+atmTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+atmTurn.Size = UDim2.new(0, 30, 0, 30)
 atmTurn.Text = ""
 atmTurn.Visible = true
 
 local uicatmturn = Instance.new("UICorner")
 uicatmturn.Parent = atmTurn
 uicatmturn.CornerRadius = UDim.new(8, 8)
+
+local uisatmturn = Instance.new("UIStroke")
+uisatmturn.Parent = atmTurn
+uisatmturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisatmturn.Color = Color3.new(1, 1, 1)
+uisatmturn.LineJoinMode = Enum.LineJoinMode.Round
+uisatmturn.Thickness = 1
 
 local InfPepper = Instance.new("TextLabel")
 InfPepper.Parent = TrollMenu
@@ -1458,21 +1559,26 @@ uicinfpepperhow.CornerRadius = UDim.new(8, 8)
 local infpepperControl = Instance.new("Frame")
 infpepperControl.Parent = InfPepper
 infpepperControl.Name = "Control"
-infpepperControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+infpepperControl.BackgroundColor3 = Color3.new(0, 0, 0)
 infpepperControl.Position = UDim2.new(1.309, 0, 0, 0)
-infpepperControl.Size = UDim2.new(0, 58, 0, 32)
+infpepperControl.Size = UDim2.new(0, 81, 0, 35)
 infpepperControl.Visible = true
 
 local uicinfpeppercontrol = Instance.new("UICorner")
 uicinfpeppercontrol.Parent = infpepperControl
 uicinfpeppercontrol.CornerRadius = UDim.new(8, 8)
 
+local uisinfpeppercontrol = Instance.new("UIStroke")
+uisinfpeppercontrol.Parent = infpepperControl
+uisinfpeppercontrol.Thickness = 2
+uisinfpeppercontrol.Color = Color3.new(1, 1, 1)
+
 local infpepperTurn = Instance.new("TextButton")
 infpepperTurn.Parent = infpepperControl
 infpepperTurn.Name = "turn"
 infpepperTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-infpepperTurn.Position = UDim2.new(0, 0, 0, 0)
-infpepperTurn.Size = UDim2.new(0, 35, 0, 32)
+infpepperTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+infpepperTurn.Size = UDim2.new(0, 30, 0, 30)
 infpepperTurn.Text = ""
 infpepperTurn.Visible = true
 
@@ -1480,11 +1586,18 @@ local uicinfpepperturn = Instance.new("UICorner")
 uicinfpepperturn.Parent = infpepperTurn
 uicinfpepperturn.CornerRadius = UDim.new(8, 8)
 
+local uisinfpepperturn = Instance.new("UIStroke")
+uisinfpepperturn.Parent = infpepperTurn
+uisinfpepperturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisinfpepperturn.Color = Color3.new(1, 1, 1)
+uisinfpepperturn.LineJoinMode = Enum.LineJoinMode.Round
+uisinfpepperturn.Thickness = 1
+
 local Adonis = Instance.new("TextLabel")
 Adonis.Parent = SettingsMenu
 Adonis.Name = "adonis"
 Adonis.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-Adonis.Position = UDim2.new(0.016, 0, 0.022, 0)
+Adonis.Position = UDim2.new(0.016, 0, 0.104, 0)
 Adonis.Size = UDim2.new(0, 194, 0, 32)
 Adonis.TextScaled = true
 Adonis.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
@@ -1559,27 +1672,41 @@ uicreloadhow.CornerRadius = UDim.new(8, 8)
 local reloadControl = Instance.new("Frame")
 reloadControl.Parent = Reload
 reloadControl.Name = "Control"
-reloadControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+reloadControl.BackgroundColor3 = Color3.new(0, 0, 0)
 reloadControl.Position = UDim2.new(1.309, 0, 0, 0)
-reloadControl.Size = UDim2.new(0, 58, 0, 32)
+reloadControl.Size = UDim2.new(0, 81, 0, 35)
 reloadControl.Visible = true
 
 local uicreloadcontrol = Instance.new("UICorner")
 uicreloadcontrol.Parent = reloadControl
 uicreloadcontrol.CornerRadius = UDim.new(8, 8)
 
+uisreloadcontrol = Instance.new("UIStroke")
+uisreloadcontrol.Parent = reloadControl
+uisreloadcontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisreloadcontrol.Color = Color3.new(1, 1, 1)
+uisreloadcontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisreloadcontrol.Thickness = 1
+
 local reloadTurn = Instance.new("TextButton")
 reloadTurn.Parent = reloadControl
 reloadTurn.Name = "turn"
 reloadTurn.BackgroundColor3 = Color3.new(255, 0, 0)
-reloadTurn.Position = UDim2.new(0, 0, 0, 0)
-reloadTurn.Size = UDim2.new(0, 35, 0, 32)
+reloadTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+reloadTurn.Size = UDim2.new(0, 30, 0, 30)
 reloadTurn.Text = ""
 reloadTurn.Visible = true
 
 local uicreloadturn = Instance.new("UICorner")
 uicreloadturn.Parent = reloadTurn
 uicreloadturn.CornerRadius = UDim.new(8, 8)
+
+uisreloadturn = Instance.new("UIStroke")
+uisreloadturn.Parent = reloadTurn
+uisreloadturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisreloadturn.Color = Color3.new(1, 1, 1)
+uisreloadturn.LineJoinMode = Enum.LineJoinMode.Round
+uisreloadturn.Thickness = 1
 
 local Hitbox = Instance.new("TextLabel")
 Hitbox.Parent = MainMenu
@@ -1611,27 +1738,265 @@ uichitboxhow.CornerRadius = UDim.new(8, 8)
 local hitboxControl = Instance.new("Frame")
 hitboxControl.Parent = Hitbox
 hitboxControl.Name = "Control"
-hitboxControl.BackgroundColor3 = Color3.new(0.611765, 0.611765, 0.611765)
+hitboxControl.BackgroundColor3 = Color3.new(0, 0, 0)
 hitboxControl.Position = UDim2.new(1.309, 0, 0, 0)
-hitboxControl.Size = UDim2.new(0, 58, 0, 32)
+hitboxControl.Size = UDim2.new(0, 81, 0, 35)
 hitboxControl.Visible = true
 
 local uichitboxcontrol = Instance.new("UICorner")
 uichitboxcontrol.Parent = hitboxControl
 uichitboxcontrol.CornerRadius = UDim.new(8, 8)
 
+local uishitboxcontrol = Instance.new("UIStroke")
+uishitboxcontrol.Parent = hitboxControl
+uishitboxcontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uishitboxcontrol.Color = Color3.new(1, 1, 1)
+uishitboxcontrol.LineJoinMode = Enum.LineJoinMode.Round
+uishitboxcontrol.Thickness = 1
+
 local hitboxTurn = Instance.new("TextButton")
 hitboxTurn.Parent = hitboxControl
 hitboxTurn.Name = "turn"
 hitboxTurn.BackgroundColor3 = Color3.new(255, 0, 0)
-hitboxTurn.Position = UDim2.new(0, 0, 0, 0)
-hitboxTurn.Size = UDim2.new(0, 35, 0, 32)
+hitboxTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+hitboxTurn.Size = UDim2.new(0, 30, 0, 30)
 hitboxTurn.Text = ""
 hitboxTurn.Visible = true
 
 local uichitboxturn = Instance.new("UICorner")
 uichitboxturn.Parent = hitboxTurn
 uichitboxturn.CornerRadius = UDim.new(8, 8)
+
+local uishitboxturn = Instance.new("UIStroke")
+uishitboxturn.Parent = hitboxTurn
+uishitboxturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uishitboxturn.Color = Color3.new(1, 1, 1)
+uishitboxturn.LineJoinMode = Enum.LineJoinMode.Round
+uishitboxturn.Thickness = 1
+
+local OCmenuKeybind = Instance.new("TextLabel")
+OCmenuKeybind.Parent = SettingsMenu
+OCmenuKeybind.Name = "keybind"
+OCmenuKeybind.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+OCmenuKeybind.Position = UDim2.new(0.016, 0, 0.022, 0)
+OCmenuKeybind.Size = UDim2.new(0, 194, 0, 32)
+OCmenuKeybind.TextScaled = true
+OCmenuKeybind.Text = "Menu Keybind"
+OCmenuKeybind.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+OCmenuKeybind.Visible = true
+
+local uisocmenukeybind = Instance.new("UICorner")
+uisocmenukeybind.Parent = OCmenuKeybind
+uisocmenukeybind.CornerRadius = UDim.new(0, 8)
+
+local ocmenukeybindHow = Instance.new("ImageLabel")
+ocmenukeybindHow.Parent = OCmenuKeybind
+ocmenukeybindHow.Name = "how"
+ocmenukeybindHow.Position = UDim2.new(1.077, 0, 0, 0)
+ocmenukeybindHow.Size = UDim2.new(0, 32, 0, 32)
+ocmenukeybindHow.Image = "rbxassetid://75772970732380"
+ocmenukeybindHow.Visible = true
+
+local uicocmenukeybindhow = Instance.new("UICorner")
+uicocmenukeybindhow.Parent = ocmenukeybindHow
+uicocmenukeybindhow.CornerRadius = UDim.new(8, 8)
+
+local ocmenukeybindLoad = Instance.new("TextLabel")
+ocmenukeybindLoad.Parent = OCmenuKeybind
+ocmenukeybindLoad.Name = "load"
+ocmenukeybindLoad.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+ocmenukeybindLoad.Position = UDim2.new(1.36, 0, 0, 0)
+ocmenukeybindLoad.Size = UDim2.new(0, 104, 0, 32)
+ocmenukeybindLoad.TextScaled = true
+ocmenukeybindLoad.Text = "Insert"
+ocmenukeybindLoad.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+ocmenukeybindLoad.Visible = true
+
+local uicocmenukeybindload = Instance.new("UICorner")
+uicocmenukeybindload.Parent = ocmenukeybindLoad
+uicocmenukeybindload.CornerRadius = UDim.new(0, 8)
+
+local uisocmenukeybindload = Instance.new("UIStroke")
+uisocmenukeybindload.Parent = ocmenukeybindLoad
+uisocmenukeybindload.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisocmenukeybindload.Color = Color3.new(1, 1, 1)
+uisocmenukeybindload.LineJoinMode = Enum.LineJoinMode.Round
+uisocmenukeybindload.Thickness = 1
+
+local skinslistText = Instance.new("TextLabel")
+skinslistText.Parent = SkinsMenu
+skinslistText.Name = "text"
+skinslistText.BackgroundTransparency = 1
+skinslistText.Position = UDim2.new(0.37, 0, -0.01, 0)
+skinslistText.Size = UDim2.new(0, 200, 0, 50)
+skinslistText.TextColor3 = Color3.new(0.945098, 0.945098, 0.945098)
+skinslistText.TextScaled = true
+skinslistText.Text = "SKINS LIST"
+skinslistText.Visible = true
+
+local gunsSkins = Instance.new("TextLabel")
+gunsSkins.Parent = SkinsMenu
+gunsSkins.Name = "guns"
+gunsSkins.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+gunsSkins.Position = UDim2.new(0.015, 0, 0.094, 0)
+gunsSkins.Size = UDim2.new(0, 194, 0, 32)
+gunsSkins.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+gunsSkins.TextScaled = true
+gunsSkins.Text = "GUNS"
+gunsSkins.Visible = true
+
+local uicgunsskins = Instance.new("UICorner")
+uicgunsskins.Parent = gunsSkins
+uicgunsskins.CornerRadius = UDim.new(0, 8)
+
+local gunsskinscontrol = Instance.new("Frame")
+gunsskinscontrol.Parent = gunsSkins
+gunsskinscontrol.Name = "Control"
+gunsskinscontrol.BackgroundColor3 = Color3.new(0, 0, 0)
+gunsskinscontrol.Position = UDim2.new(1.064, 0, -0.078, 0)
+gunsskinscontrol.Size = UDim2.new(0, 81, 0, 35)
+gunsskinscontrol.Visible = true
+
+local uicgunsskinscontrol = Instance.new("UICorner")
+uicgunsskinscontrol.Parent = gunsskinscontrol
+uicgunsskinscontrol.CornerRadius = UDim.new(8, 8)
+
+local uisgunsskinscontrol = Instance.new("UIStroke")
+uisgunsskinscontrol.Parent = gunsskinscontrol
+uisgunsskinscontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisgunsskinscontrol.Color = Color3.new(1, 1, 1)
+uisgunsskinscontrol.LineJoinMode = Enum.LineJoinMode.Round
+uisgunsskinscontrol.Thickness = 1
+
+local gunsskinsTurn = Instance.new("TextButton")
+gunsskinsTurn.Parent = gunsskinscontrol
+gunsskinsTurn.Name = "turn"
+gunsskinsTurn.BackgroundColor3 = Color3.new(1, 0, 0)
+gunsskinsTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+gunsskinsTurn.Size = UDim2.new(0, 30, 0, 30)
+gunsskinsTurn.Text = ""
+gunsskinsTurn.Visible = true
+
+local uicgunsskinsturn = Instance.new("UICorner")
+uicgunsskinsturn.Parent = gunsskinsTurn
+uicgunsskinsturn.CornerRadius = UDim.new(8, 8)
+
+local uisgunsskinsturn = Instance.new("UIStroke")
+uisgunsskinsturn.Parent = gunsskinsTurn
+uisgunsskinsturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uisgunsskinsturn.Color = Color3.new(1, 1, 1)
+uisgunsskinsturn.LineJoinMode = Enum.LineJoinMode.Round
+uisgunsskinsturn.Thickness = 1
+
+local meleeSkins = Instance.new("TextLabel")
+meleeSkins.Parent = SkinsMenu
+meleeSkins.Name = "melees"
+meleeSkins.BackgroundColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+meleeSkins.Position = UDim2.new(0.619, 0, 0.094, 0)
+meleeSkins.Size = UDim2.new(0, 194, 0, 32)
+meleeSkins.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
+meleeSkins.TextScaled = true
+meleeSkins.Text = "MELEES"
+meleeSkins.Visible = true
+
+local uicmeleeskins = Instance.new("UICorner")
+uicmeleeskins.Parent = meleeSkins
+uicmeleeskins.CornerRadius = UDim.new(0, 8)
+
+local meleeskinsControl = Instance.new("Frame")
+meleeskinsControl.Parent = meleeSkins
+meleeskinsControl.Name = "Control"
+meleeskinsControl.BackgroundColor3 = Color3.new(0, 0, 0)
+meleeskinsControl.Position = UDim2.new(1.064, 0,-0.078, 0)
+meleeskinsControl.Size = UDim2.new(0, 81, 0, 35)
+meleeskinsControl.Visible = true
+
+local uicmeleeskinscontrol = Instance.new("UICorner")
+uicmeleeskinscontrol.Parent = meleeskinsControl
+uicmeleeskinscontrol.CornerRadius = UDim.new(8, 8)
+
+local uismeleeskinscontrol = Instance.new("UIStroke")
+uismeleeskinscontrol.Parent = meleeskinsControl
+uismeleeskinscontrol.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uismeleeskinscontrol.Color = Color3.new(1, 1, 1)
+uismeleeskinscontrol.LineJoinMode = Enum.LineJoinMode.Round
+uismeleeskinscontrol.Thickness = 1
+
+local meleeskinsTurn = Instance.new("TextButton")
+meleeskinsTurn.Parent = meleeskinsControl
+meleeskinsTurn.Name = "turn"
+meleeskinsTurn.BackgroundColor3 = Color3.new(1, 0, 0)
+meleeskinsTurn.Position = UDim2.new(0.046, 0, 0.071, 0)
+meleeskinsTurn.Size = UDim2.new(0, 30, 0, 30)
+meleeskinsTurn.Text = ""
+meleeskinsTurn.Visible = true
+
+local uicmeleeskinsturn = Instance.new("UICorner")
+uicmeleeskinsturn.Parent = meleeskinsTurn
+uicmeleeskinsturn.CornerRadius = UDim.new(8, 8)
+
+local uismeleeskinsturn = Instance.new("UIStroke")
+uismeleeskinsturn.Parent = meleeskinsTurn
+uismeleeskinsturn.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+uismeleeskinsturn.Color = Color3.new(1, 1, 1)
+uismeleeskinsturn.LineJoinMode = Enum.LineJoinMode.Round
+uismeleeskinsturn.Thickness = 1
+
+local gunsList = Instance.new("ScrollingFrame")
+gunsList.Parent = SkinsMenu
+gunsList.Name = "ginslist"
+gunsList.BackgroundColor3 = Color3.new(0.333333, 0.333333, 0.333333)
+gunsList.Position = UDim2.new(0.015, 0, 0.182, 0)
+gunsList.Size = UDim2.new(0, 360, 0, 481)
+gunsList.CanvasSize = UDim2.new(0, 0, 10, 0)
+gunsList.ScrollBarImageColor3 = Color3.new(0, 0, 0)
+gunsList.ScrollBarThickness = 5
+
+local meleesList = Instance.new("ScrollingFrame")
+meleesList.Parent = SkinsMenu
+meleesList.Name = "meleeslist"
+meleesList.BackgroundColor3 = Color3.new(0.333333, 0.333333, 0.333333)
+meleesList.Position = UDim2.new(0.525, 0, 0.186, 0)
+meleesList.Size = UDim2.new(0, 360, 0, 481)
+meleesList.CanvasSize = UDim2.new(0, 0, 10, 0)
+meleesList.ScrollBarImageColor3 = Color3.new(0, 0, 0)
+meleesList.ScrollBarThickness = 5
+
+local glockSkin = Instance.new("TextLabel")
+glockSkin.Parent = gunsList
+glockSkin.Name = "Glock"
+glockSkin.BackgroundColor3 = Color3.new(1, 1, 1)
+glockSkin.Position = UDim2.new(0.03, 0, 0.003, 0)
+glockSkin.Size = UDim2.new(0, 250, 0, 40)
+glockSkin.TextColor3 = Color3.new(0, 0, 0)
+glockSkin.TextScaled = true
+glockSkin.Text = "Glock - Anime girl"
+glockSkin.Visible = true
+
+local uicglockskin = Instance.new("UICorner")
+uicglockskin.Parent = glockSkin
+uicglockskin.CornerRadius = UDim.new(0, 8)
+
+local glockskinCheck = Instance.new("TextButton")
+glockskinCheck.Parent = glockSkin
+glockskinCheck.Name = "check"
+glockskinCheck.BackgroundColor3 = Color3.new(0, 0, 0)
+glockskinCheck.Position = UDim2.new(1.055, 0, 0.063, 0)
+glockskinCheck.Size = UDim2.new(0, 35, 0, 35)
+glockskinCheck.Text = ""
+glockskinCheck.Visible = true
+
+local uicglockskincheck = Instance.new("UICorner")
+uicglockskincheck.Parent = glockskinCheck
+uicglockskincheck.CornerRadius = UDim.new(0, 5)
+
+local glockskinCheckmark = Instance.new("ImageLabel")
+glockskinCheckmark.Parent = glockskinCheck
+glockskinCheckmark.BackgroundTransparency = 1
+glockskinCheckmark.Position = UDim2.new(0, 0, 0, 0)
+glockskinCheckmark.Size = UDim2.new(0, 35, 0, 35)
+glockskinCheckmark.Image = "rbxassetid://6218581738"
+glockskinCheckmark.Visible = false
 
 local Commands = {
       leave = function()
@@ -1655,6 +2020,29 @@ local Commands = {
             loadstring(game:HttpGet("https://raw.githubusercontent.com/populyar1/just/refs/heads/main/Gui_v2.lua"))()
       end,
 }
+
+function SkinsL()
+      run.RenderStepped:Connect(function()
+            local char = me.Character or me.CharacterAdded:Wait()
+            if not char then return end
+            local tool = char:FindFirstChildOfClass("Tool")
+            if not tool then return end
+            
+            if FOLDER.Function_Guns then
+                  for _, a in ipairs(FOLDER.Skins.GUNS) do
+                        if tool.Name  == a.gun then
+                              for _, obj in ipairs(tool:GetDescendants()) do
+                                    if obj:IsA("MeshPart") then
+                                          if FOLDER.Selection.GUNS[a.gun] then
+                                                obj.TextureID = a.id
+                                          end
+                                    end
+                              end
+                        end
+                  end
+            end
+      end)
+end
 
 function hitboxL()
       function resize(plr)
@@ -2021,33 +2409,29 @@ function nobarriersL(value)
                   end
             end
       end
-      findAndDisableParts()
-end
-
-function nogrinderL(value)
-      function disableTouchAndQuery(part)
+      function disableTouchAndQuery2(part)
             if part:IsA("BasePart") then
                   part.CanTouch = value
                   part.CanQuery = value
             end
       end
 
-      function findAndDisableParts()
-            partNames = {"FirePart", "Grinder"}
+      function findAndDisableParts2()
+            partNames2 = {"FirePart", "Grinder"}
 
-            for _, partName in ipairs(partNames) do
+            for _, partName in ipairs(partNames2) do
                   for _, part in pairs(game.Workspace:GetDescendants()) do
                         if part.Name == partName then
-                              disableTouchAndQuery(part)
+                              disableTouchAndQuery2(part)
                         end
                   end
             end
       end
       findAndDisableParts()
+      findAndDisableParts2()
 end
 
 local stroke = 1
-
 function ConsoleText(text, typeF)
       if stroke > 20 then
             consoletext.Text = ""
@@ -2149,20 +2533,86 @@ TrollList.MouseButton1Click:Connect(function()
       end
 end)
 
+SkinsList.MouseButton1Click:Connect(function()
+      for _, a in pairs(Menus:GetChildren()) do
+            if a:IsA("Frame") and a ~= SkinsMenu then
+                  a.Visible = false
+                  SkinsMenu.Visible = true
+            end
+      end
+end)
+
+gunsskinsTurn.MouseButton1Click:Connect(function()
+      if FOLDER.Function_Guns == false then
+            FOLDER.Function_Guns = true
+            gunsinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            gunsanim1 = tween:Create(gunsskinsTurn, gunsinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
+            gunsanim1:Play()
+            gunsanim1.Completed:Connect(function()
+                  gunsskinsTurn.BackgroundColor3 = Color3.new(0.0509804, 1, 0)
+            end)
+            SkinsL()
+      elseif FOLDER.Function_Guns == true then
+            FOLDER.Function_Guns = false
+            gunsinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+            gunsanim2 = tween:Create(gunsskinsTurn, gunsinfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
+            gunsanim2:Play()
+            gunsanim2.Completed:Connect(function()
+                  gunsskinsTurn.BackgroundColor3 = Color3.new(1, 0, 0)
+            end)
+      end
+end)
+
+glockskinCheck.MouseButton1Click:Connect(function()
+      if FOLDER.Selection.GUNS["G-17"] == false then
+            glockskinCheckmark.Visible = true
+            FOLDER.Selection.GUNS["G-17"] = true
+      else
+            glockskinCheckmark.Visible = false
+            FOLDER.Selection.GUNS["G-17"] = false
+      end
+end)
+
+ocmenukeybindLoad.MouseEnter:Connect(function()
+      remotes.OCmenukeybind = true
+      input.InputBegan:Connect(function(key, procces)
+            if not procces and remotes.OCmenukeybind and key.UserInputType == Enum.UserInputType.MouseButton1 then
+                  ocmenukeybindLoad.Text = "..."
+                  local connect
+                  connect = input.InputBegan:Connect(function(key2)
+                        if not table.find(ignore_binds, key2.KeyCode) and not table.find(ignore_binds, key2.UserInputType) then
+                              _G.Keybind = key2.KeyCode
+                              local keyname = tostring(_G.Keybind):gsub("Enum.KeyCode.", "")
+                              ocmenukeybindLoad.Text = keyname
+                              connect:Disconnect()
+                        else
+                              return
+                        end
+                  end)
+            end
+      end)
+end)
+
+ocmenukeybindLoad.MouseLeave:Connect(function()
+      remotes.OCmenukeybind = false
+      local keyname = tostring(_G.Keybind):gsub("Enum.KeyCode.", "")
+      ocmenukeybindLoad.Text = keyname
+end)
+
 hitboxTurn.MouseButton1Click:Connect(function()
       if functions.hitbox_expanderF == false then
             functions.hitbox_expanderF = true
             hitboxinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            hitboxanim1 = tween:Create(hitboxTurn, hitboxinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            hitboxanim1 = tween:Create(hitboxTurn, hitboxinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             hitboxanim1:Play()
             hitboxanim1.Completed:Connect(function()
-                  hitboxTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  hitboxTurn.BackgroundColor3 = Color3.new(0.14902, 1, 0)
             end)
             hitboxL()
       elseif functions.hitbox_expanderF == true then
             functions.hitbox_expanderF = false
             hitboxinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            hitboxanim2 = tween:Create(hitboxTurn, hitboxinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            hitboxanim2 = tween:Create(hitboxTurn, hitboxinfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             hitboxanim2:Play()
             hitboxanim2.Completed:Connect(function()
                   hitboxTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2174,16 +2624,16 @@ reloadTurn.MouseButton1Click:Connect(function()
       if functions.instant_reloadF == false then
             functions.instant_reloadF = true
             reloadinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            reloadanim1 = tween:Create(reloadTurn, reloadinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            reloadanim1 = tween:Create(reloadTurn, reloadinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             reloadanim1:Play()
             reloadanim1.Completed:Connect(function()
-                  reloadTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  reloadTurn.BackgroundColor3 = Color3.new(0, 1, 0)
             end)
             instantreloadL()
       elseif functions.instant_reloadF == true then
             functions.instant_reloadF = false
             reloadinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            reloadanim2 = tween:Create(reloadTurn, reloadinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            reloadanim2 = tween:Create(reloadTurn, reloadinfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             reloadanim2:Play()
             reloadanim2.Completed:Connect(function()
                   reloadTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2204,16 +2654,16 @@ infpepperTurn.MouseButton1Click:Connect(function()
       if functions.inf_pepperF == false then
             functions.inf_pepperF = true
             infpepperinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            infpepperanim1 = tween:Create(infpepperTurn, infpepperinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            infpepperanim1 = tween:Create(infpepperTurn, infpepperinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             infpepperanim1:Play()
             infpepperanim1.Completed:Connect(function()
-                  infpepperTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  infpepperTurn.BackgroundColor3 = Color3.new(0.14902, 1, 0)
             end)
             infpepperL(true)
       elseif functions.inf_pepperF == true then
             functions.inf_pepperF = false
             infpepperinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            infpepperanim2 = tween:Create(infpepperTurn, infpepperinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            infpepperanim2 = tween:Create(infpepperTurn, infpepperinfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             infpepperanim2:Play()
             infpepperanim2.Completed:Connect(function()
                   infpepperTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2226,16 +2676,16 @@ glassarmsTurn.MouseButton1Click:Connect(function()
       if functions.glass_armsF == false then
             functions.glass_armsF = true
             glassarmsinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            glassarmsanim1 = tween:Create(glassarmsTurn, glassarmsinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            glassarmsanim1 = tween:Create(glassarmsTurn, glassarmsinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             glassarmsanim1:Play()
             glassarmsanim1.Completed:Connect(function()
-                  glassarmsTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  glassarmsTurn.BackgroundColor3 = Color3.new(0.184314, 1, 0)
             end)
             glassarmsL(true)
       elseif functions.glass_armsF == true then
             functions.glass_armsF = false
             glassarmsinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            glassarmsanim2 = tween:Create(glassarmsTurn, glassarmsinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            glassarmsanim2 = tween:Create(glassarmsTurn, glassarmsinfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             glassarmsanim2:Play()
             glassarmsanim2.Completed:Connect(function()
                   glassarmsTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2248,16 +2698,16 @@ antiflingTurn.MouseButton1Click:Connect(function()
       if functions.anti_flingF == false then
             functions.anti_flingF = true
             antiflinginfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            antiflinganim1 = tween:Create(antiflingTurn, antiflinginfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            antiflinganim1 = tween:Create(antiflingTurn, antiflinginfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             antiflinganim1:Play()
             antiflinganim1.Completed:Connect(function()
-                  antiflingTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  antiflingTurn.BackgroundColor3 = Color3.new(0.184314, 1, 0)
             end)
             antiflingL()
       elseif functions.anti_flingF == true then
             functions.anti_flingF = false
             antiflinginfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            antiflinganim2 = tween:Create(antiflingTurn, antiflinginfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            antiflinganim2 = tween:Create(antiflingTurn, antiflinginfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             antiflinganim2:Play()
             antiflinganim2.Completed:Connect(function()
                   antiflingTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2269,17 +2719,17 @@ FullbrightTurn.MouseButton1Click:Connect(function()
       if functions.FullbrightF == false then
             functions.FullbrightF = true
             fullbrightinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            fullbrightanim1 = tween:Create(FullbrightTurn, fullbrightinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            fullbrightanim1 = tween:Create(FullbrightTurn, fullbrightinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             fullbrightanim1:Play()
             fullbrightanim1.Completed:Connect(function()
-                  FullbrightTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  FullbrightTurn.BackgroundColor3 = Color3.new(0.184314, 1, 0)
             end)
             fullbrightL(1)
       elseif functions.FullbrightF == true then
             functions.FullbrightF = false
             fullbrightL(0)
             fullbrightinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            fullbrightanim2 = tween:Create(FullbrightTurn, fullbrightinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            fullbrightanim2 = tween:Create(FullbrightTurn, fullbrightinfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             fullbrightanim2:Play()
             fullbrightanim2.Completed:Connect(function()
                   FullbrightTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2292,16 +2742,16 @@ TurnOpen_doors.MouseButton1Click:Connect(function()
             functions.AutoOpenDoorsF = true
             open_doorsL()
             openDoorsinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            openDoorsanim1 = tween:Create(TurnOpen_doors, openDoorsinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            openDoorsanim1 = tween:Create(TurnOpen_doors, openDoorsinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             openDoorsanim1:Play()
             openDoorsanim1.Completed:Connect(function()
-                  TurnOpen_doors.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  TurnOpen_doors.BackgroundColor3 = Color3.new(0.101961, 1, 0)
             end)
       elseif functions.AutoOpenDoorsF == true then
             functions.AutoOpenDoorsF = false
             remotes.open_doorsRun:Disconnect()
             openDoorsinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            openDoorsanim2 = tween:Create(TurnOpen_doors, openDoorsinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            openDoorsanim2 = tween:Create(TurnOpen_doors, openDoorsinfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             openDoorsanim2:Play()
             openDoorsanim2.Completed:Connect(function()
                   TurnOpen_doors.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2313,43 +2763,21 @@ nobarriersTurn.MouseButton1Click:Connect(function()
       if functions.NoBarriersF == false then
             functions.NoBarriersF = true
             nobarriersinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            nobarriersanim1 = tween:Create(nobarriersTurn, nobarriersinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            nobarriersanim1 = tween:Create(nobarriersTurn, nobarriersinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             nobarriersanim1:Play()
             nobarriersanim1.Completed:Connect(function()
-                  nobarriersTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  nobarriersTurn.BackgroundColor3 = Color3.new(0.184314, 1, 0)
             end)
             nobarriersL(false)
       elseif functions.NoBarriersF == true then
             functions.NoBarriersF = false
             nobarriersinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            nobarriersanim2 = tween:Create(nobarriersTurn, nobarriersinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            nobarriersanim2 = tween:Create(nobarriersTurn, nobarriersinfo2, {Position = UDim2.new(0.041, 0, 0.071, 0)})
             nobarriersanim2:Play()
             nobarriersanim2.Completed:Connect(function()
                   nobarriersTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
             nobarriersL(true)
-      end
-end)
-
-nogrinderTurn.MouseButton1Click:Connect(function()
-      if functions.NoGrinderF == false then
-            functions.NoGrinderF = true
-            local nogrinderinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local nogrinderanim1 = tween:Create(nogrinderTurn, nogrinderinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
-            nogrinderanim1:Play()
-            nogrinderanim1.Completed:Connect(function()
-                  nogrinderTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
-            end)
-            nogrinderL(false)
-      elseif functions.NoGrinderF == true then
-            functions.NoGrinderF = false
-            local nogrinderinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            local nogrinderanim2 = tween:Create(nogrinderTurn, nogrinderinfo2, {Position = UDim2.new(0, 0, 0, 0)})
-            nogrinderanim2:Play()
-            nogrinderanim2.Completed:Connect(function()
-                  nogrinderTurn.BackgroundColor3 = Color3.new(1, 0, 0)
-            end)
-            nogrinderL(true)
       end
 end)
 
@@ -2420,10 +2848,10 @@ nofalldamageTurn.MouseButton1Click:Connect(function()
       if functions.nofalldamageF == false then
             functions.nofalldamageF = true
             nofalldamegeinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            nofalldamageanim1 = tween:Create(nofalldamageTurn, nofalldamegeinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            nofalldamageanim1 = tween:Create(nofalldamageTurn, nofalldamegeinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             nofalldamageanim1:Play()
             nofalldamageanim1.Completed:Connect(function()
-                  nofalldamageTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  nofalldamageTurn.BackgroundColor3 = Color3.new(0.133333, 1, 0)
             end)
 
             character = me.Character or me.CharacterAdded:Wait()
@@ -2443,12 +2871,11 @@ nofalldamageTurn.MouseButton1Click:Connect(function()
       elseif functions.nofalldamageF == true then
             functions.nofalldamageF = false
             nofalldamageinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            nofalldamageanim2 = tween:Create(nofalldamageTurn, nofalldamageinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            nofalldamageanim2 = tween:Create(nofalldamageTurn, nofalldamageinfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             nofalldamageanim2:Play()
             nofalldamageanim2.Completed:Connect(function()
                   nofalldamageTurn.BackgroundColor3 = Color3.new(1, 0, 0)
             end)
-
             char2 = me.Character or me.CharacterAdded:Wait()
             forceField = char2:FindFirstChildOfClass("ForceField")
             if forceField then
@@ -2460,16 +2887,16 @@ highlightTurn.MouseButton1Click:Connect(function()
       if functions.highlightF == false then
             functions.highlightF = true
             highlightinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            highlightanim1 = tween:Create(highlightTurn, highlightinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            highlightanim1 = tween:Create(highlightTurn, highlightinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             highlightanim1:Play()
             highlightanim1.Completed:Connect(function()
-                  highlightTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  highlightTurn.BackgroundColor3 = Color3.new(0.184314, 1, 0)
             end)
             highlightL()
       elseif functions.highlightF == true then
             functions.highlightF = false
             highlightinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            highlightanim2 = tween:Create(highlightTurn, highlightinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            highlightanim2 = tween:Create(highlightTurn, highlightinfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             highlightanim2:Play()
             highlightanim2.Completed:Connect(function()
                   highlightTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2481,10 +2908,10 @@ infstaminaTurn.MouseButton1Click:Connect(function()
       if functions.infstaminaF == false then
             functions.infstaminaF = true
             infstaminainfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            infstaminaanim1 = tween:Create(infstaminaTurn, infstaminainfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            infstaminaanim1 = tween:Create(infstaminaTurn, infstaminainfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             infstaminaanim1:Play()
             infstaminaanim1.Completed:Connect(function()
-                  infstaminaTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  infstaminaTurn.BackgroundColor3 = Color3.new(0.184314, 1, 0)
             end)
             local succ, err = pcall(function()
                   infstaminaL()
@@ -2495,7 +2922,7 @@ infstaminaTurn.MouseButton1Click:Connect(function()
       elseif functions.infstaminaF == true then
             functions.infstaminaF = false
             infstaminainfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            infstaminaanim2 = tween:Create(infstaminaTurn, infstaminainfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            infstaminaanim2 = tween:Create(infstaminaTurn, infstaminainfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             infstaminaanim2:Play()
             infstaminaanim2.Completed:Connect(function()
                   infstaminaTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2507,10 +2934,10 @@ aimbotTurn.MouseButton1Click:Connect(function()
       if functions.aimbotF == false then
             functions.aimbotF = true
             aimbotinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            aimbotanim1 = tween:Create(aimbotTurn, aimbotinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            aimbotanim1 = tween:Create(aimbotTurn, aimbotinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             aimbotanim1:Play()
             aimbotanim1.Completed:Connect(function()
-                  aimbotTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  aimbotTurn.BackgroundColor3 = Color3.new(0.184314, 1, 0)
             end)
             local succ, err = pcall(function()
                   aimbotL()
@@ -2521,7 +2948,7 @@ aimbotTurn.MouseButton1Click:Connect(function()
       elseif functions.aimbotF == true then
             functions.aimbotF = false
             aimbotinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            aimbotanim2 = tween:Create(aimbotTurn, aimbotinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            aimbotanim2 = tween:Create(aimbotTurn, aimbotinfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             aimbotanim2:Play()
             aimbotanim2.Completed:Connect(function()
                   aimbotTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2537,16 +2964,16 @@ fastpickupTurn.MouseButton1Click:Connect(function()
       if functions.fast_pickupF == false then
             functions.fast_pickupF = true
             fastpickupinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            fastpickupanim1 = tween:Create(fastpickupTurn, fastpickupinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            fastpickupanim1 = tween:Create(fastpickupTurn, fastpickupinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             fastpickupanim1:Play()
             fastpickupanim1.Completed:Connect(function()
-                  fastpickupTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  fastpickupTurn.BackgroundColor3 = Color3.new(0.184314, 1, 0)
             end)
             fastpickupL()
       elseif functions.fast_pickupF == true then
             functions.fast_pickupF = false
             fastpickupinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            fastpickupanim2 = tween:Create(fastpickupTurn, fastpickupinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            fastpickupanim2 = tween:Create(fastpickupTurn, fastpickupinfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             fastpickupanim2:Play()
             fastpickupanim2.Completed:Connect(function()
                   fastpickupTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2558,16 +2985,16 @@ lockpickTrun.MouseButton1Click:Connect(function()
       if functions.lockpickF == false then
             functions.lockpickF = true
             lockpickinfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            lockpickanim1 = tween:Create(lockpickTrun, lockpickinfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            lockpickanim1 = tween:Create(lockpickTrun, lockpickinfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             lockpickanim1:Play()
             lockpickanim1.Completed:Connect(function()
-                  lockpickTrun.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  lockpickTrun.BackgroundColor3 = Color3.new(0.184314, 1, 0)
             end)
             lockpickL()
       elseif functions.lockpickF == true then
             functions.lockpickF = false
             lockpickinfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            lockpickanim2 = tween:Create(lockpickTrun, lockpickinfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            lockpickanim2 = tween:Create(lockpickTrun, lockpickinfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             lockpickanim2:Play()
             lockpickanim2.Completed:Connect(function()
                   lockpickTrun.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2579,10 +3006,10 @@ atmTurn.MouseButton1Click:Connect(function()
       if functions.atmF == false then
             functions.atmF = true
             atminfo1 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            atmanim1 = tween:Create(atmTurn, atminfo1, {Position = UDim2.new(0.388, 0, 0, 0)})
+            atmanim1 = tween:Create(atmTurn, atminfo1, {Position = UDim2.new(0.59, 0, 0.071, 0)})
             atmanim1:Play()
             atmanim1.Completed:Connect(function()
-                  atmTurn.BackgroundColor3 = Color3.new(0.0941176, 0.517647, 0)
+                  atmTurn.BackgroundColor3 = Color3.new(0.184314, 1, 0)
             end)
             local succ, err = pcall(function()
                   atmL(math.huge)
@@ -2593,7 +3020,7 @@ atmTurn.MouseButton1Click:Connect(function()
       elseif functions.atmF == true then
             functions.atmF = false
             atminfo2 = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-            atmanim2 = tween:Create(atmTurn, atminfo2, {Position = UDim2.new(0, 0, 0, 0)})
+            atmanim2 = tween:Create(atmTurn, atminfo2, {Position = UDim2.new(0.046, 0, 0.071, 0)})
             atmanim2:Play()
             atmanim2.Completed:Connect(function()
                   atmTurn.BackgroundColor3 = Color3.new(1, 0, 0)
@@ -2666,7 +3093,7 @@ input.InputChanged:Connect(function(input)
 end)
 
 input.InputBegan:Connect(function(key)
-      if key.KeyCode == Enum.KeyCode.Insert then
+      if key.KeyCode == _G.Keybind then
             if dragg.Visible == true then
                   dragg.Visible = false
             else
